@@ -1,0 +1,7 @@
+{
+  "name": "research",
+  "description": "General research with web search, citation management, and structured analysis",
+  "conflicts": [],
+  "depends": [],
+  "mcp_servers": ["brave-search", "exa"]
+}

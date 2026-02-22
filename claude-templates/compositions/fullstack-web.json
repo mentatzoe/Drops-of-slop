@@ -1,0 +1,5 @@
+{
+  "name": "fullstack-web",
+  "description": "Full-stack web development with QA integration — React frontend, API design, and comprehensive testing",
+  "overlays": ["web-dev", "quality-assurance"]
+}

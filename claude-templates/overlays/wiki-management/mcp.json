@@ -1,0 +1,14 @@
+{
+  "_comment": "Required env vars: MEDIAWIKI_URL (wiki base URL), MEDIAWIKI_BOT_USERNAME and MEDIAWIKI_BOT_PASSWORD (bot account credentials).",
+  "mcpServers": {
+    "mediawiki": {
+      "command": "npx",
+      "args": ["-y", "@professional-wiki/mediawiki-mcp-server@latest"],
+      "env": {
+        "MEDIAWIKI_URL": "${MEDIAWIKI_URL}",
+        "MEDIAWIKI_BOT_USERNAME": "${MEDIAWIKI_BOT_USERNAME}",
+        "MEDIAWIKI_BOT_PASSWORD": "${MEDIAWIKI_BOT_PASSWORD}"
+      }
+    }
+  }
+}

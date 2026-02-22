@@ -1,0 +1,99 @@
+{
+  "version": "1.0.0",
+  "overlays": {
+    "web-dev": {
+      "description": "Web frontend development with React/Next.js",
+      "conflicts": ["android-dev"],
+      "depends": [],
+      "mcp_servers": ["playwright", "context7", "filesystem"]
+    },
+    "android-dev": {
+      "description": "Android development with Kotlin and Jetpack Compose",
+      "conflicts": ["web-dev"],
+      "depends": [],
+      "mcp_servers": ["mobile-mcp", "android-mcp-server"]
+    },
+    "gamedev": {
+      "description": "Game development with Godot, Unity, and Blender",
+      "conflicts": [],
+      "depends": [],
+      "mcp_servers": ["gdai-mcp", "unity-mcp", "blender-mcp"]
+    },
+    "ai-research": {
+      "description": "AI/ML research with experiment tracking and paper analysis",
+      "conflicts": [],
+      "depends": [],
+      "mcp_servers": ["huggingface", "arxiv", "sequential-thinking"]
+    },
+    "uxr": {
+      "description": "User experience research — study design and insight synthesis",
+      "conflicts": [],
+      "depends": [],
+      "mcp_servers": []
+    },
+    "quality-assurance": {
+      "description": "Testing standards, test plans, and QA automation",
+      "conflicts": [],
+      "depends": [],
+      "mcp_servers": []
+    },
+    "research": {
+      "description": "General research with web search and citation management",
+      "conflicts": [],
+      "depends": [],
+      "mcp_servers": ["brave-search", "exa"]
+    },
+    "knowledge-management": {
+      "description": "Personal knowledge management with Obsidian and note linking",
+      "conflicts": [],
+      "depends": [],
+      "mcp_servers": ["obsidian", "memory"]
+    },
+    "worldbuilding": {
+      "description": "Fictional worldbuilding — lore, consistency, and narrative design",
+      "conflicts": [],
+      "depends": [],
+      "mcp_servers": ["memory", "obsidian", "mediawiki"]
+    },
+    "wiki-management": {
+      "description": "MediaWiki content management and article maintenance",
+      "conflicts": [],
+      "depends": [],
+      "mcp_servers": ["mediawiki"]
+    }
+  },
+  "compositions": {
+    "fullstack-web": {
+      "overlays": ["web-dev", "quality-assurance"],
+      "description": "Full-stack web development with QA integration"
+    },
+    "android-app": {
+      "overlays": ["android-dev", "quality-assurance"],
+      "description": "Android app development with testing standards"
+    },
+    "creative-worldbuilding": {
+      "overlays": ["worldbuilding", "knowledge-management"],
+      "description": "Worldbuilding with integrated knowledge management"
+    },
+    "ai-project": {
+      "overlays": ["ai-research", "research"],
+      "description": "AI/ML project with literature review and research tools"
+    },
+    "obsidian-vault": {
+      "overlays": ["knowledge-management", "wiki-management"],
+      "description": "Obsidian vault with wiki-style content management"
+    }
+  },
+  "personas": [
+    "strict-reviewer",
+    "pair-programmer",
+    "research-analyst",
+    "creative-writer",
+    "architect"
+  ],
+  "agents": [
+    "strict-reviewer",
+    "research-analyst",
+    "worldbuilder"
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "name": "web-dev",
+  "description": "Web frontend development with React/Next.js patterns, API design, and component architecture",
+  "conflicts": ["android-dev"],
+  "depends": [],
+  "mcp_servers": ["playwright", "context7", "filesystem"]
+}

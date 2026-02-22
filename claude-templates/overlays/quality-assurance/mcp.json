@@ -1,0 +1,4 @@
+{
+  "_comment": "Required env vars: none. QA overlay works with project-local test runners. Add browser automation MCPs (Playwright, Selenium) as needed.",
+  "mcpServers": {}
+}

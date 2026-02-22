@@ -1,0 +1,7 @@
+{
+  "name": "android-dev",
+  "description": "Android development with Kotlin, Jetpack Compose, and Material Design 3",
+  "conflicts": ["web-dev"],
+  "depends": [],
+  "mcp_servers": ["mobile-mcp", "android-mcp-server"]
+}

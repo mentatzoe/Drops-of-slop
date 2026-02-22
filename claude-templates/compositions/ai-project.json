@@ -1,0 +1,5 @@
+{
+  "name": "ai-project",
+  "description": "AI/ML project with experiment tracking, literature review, and general research capabilities",
+  "overlays": ["ai-research", "research"]
+}
