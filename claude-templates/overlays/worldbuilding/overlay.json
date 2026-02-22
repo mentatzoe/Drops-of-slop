@@ -1,0 +1,7 @@
+{
+  "name": "worldbuilding",
+  "description": "Fictional worldbuilding — lore management, consistency tracking, and narrative design",
+  "conflicts": [],
+  "depends": [],
+  "mcp_servers": ["memory", "obsidian", "mediawiki"]
+}

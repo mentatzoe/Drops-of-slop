@@ -1,0 +1,7 @@
+{
+  "name": "knowledge-management",
+  "description": "Personal knowledge management with Obsidian, note linking, and knowledge graphs",
+  "conflicts": [],
+  "depends": [],
+  "mcp_servers": ["obsidian", "memory"]
+}

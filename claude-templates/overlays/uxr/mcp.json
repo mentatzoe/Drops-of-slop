@@ -1,0 +1,4 @@
+{
+  "_comment": "Required env vars: none. UXR overlay relies on local file analysis. Add survey platform MCPs (e.g., Qualtrics, Dovetail) as needed for your workflow.",
+  "mcpServers": {}
+}

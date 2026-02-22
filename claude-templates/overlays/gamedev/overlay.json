@@ -1,0 +1,7 @@
+{
+  "name": "gamedev",
+  "description": "Game development with Godot, Unity, or Blender pipelines",
+  "conflicts": [],
+  "depends": [],
+  "mcp_servers": ["gdai-mcp", "unity-mcp", "blender-mcp"]
+}

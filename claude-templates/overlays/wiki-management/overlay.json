@@ -1,0 +1,7 @@
+{
+  "name": "wiki-management",
+  "description": "MediaWiki content management — article editing, style enforcement, and wiki maintenance",
+  "conflicts": [],
+  "depends": [],
+  "mcp_servers": ["mediawiki"]
+}

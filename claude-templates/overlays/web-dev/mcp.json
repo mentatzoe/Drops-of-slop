@@ -1,0 +1,17 @@
+{
+  "_comment": "Required env vars: none (all servers run locally). Playwright requires a running browser context.",
+  "mcpServers": {
+    "playwright": {
+      "command": "npx",
+      "args": ["-y", "@playwright/mcp@latest"]
+    },
+    "context7": {
+      "command": "npx",
+      "args": ["-y", "context7-mcp@latest"]
+    },
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "./"]
+    }
+  }
+}

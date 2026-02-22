@@ -1,0 +1,17 @@
+{
+  "_comment": "Required env vars: none for local servers. Godot GDAI requires Godot editor running. Unity MCP requires Unity editor running. Blender MCP requires Blender running with the addon enabled.",
+  "mcpServers": {
+    "gdai-mcp": {
+      "type": "sse",
+      "url": "https://gdaimcp.com/mcp"
+    },
+    "unity-mcp": {
+      "command": "npx",
+      "args": ["-y", "@anthropic/unity-mcp-runner@latest"]
+    },
+    "blender-mcp": {
+      "command": "uvx",
+      "args": ["blender-mcp"]
+    }
+  }
+}

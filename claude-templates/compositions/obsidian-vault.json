@@ -1,0 +1,5 @@
+{
+  "name": "obsidian-vault",
+  "description": "Obsidian vault management with knowledge graphs, note conventions, and wiki-style content management",
+  "overlays": ["knowledge-management", "wiki-management"]
+}

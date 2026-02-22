@@ -1,0 +1,7 @@
+{
+  "name": "ai-research",
+  "description": "AI/ML research with experiment tracking, paper analysis, and model evaluation",
+  "conflicts": [],
+  "depends": [],
+  "mcp_servers": ["huggingface", "arxiv", "sequential-thinking"]
+}

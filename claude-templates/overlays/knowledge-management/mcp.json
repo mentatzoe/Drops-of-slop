@@ -1,0 +1,17 @@
+{
+  "_comment": "Required env vars: OBSIDIAN_REST_API_KEY (for Obsidian Local REST API plugin). Memory server stores entities locally.",
+  "mcpServers": {
+    "obsidian": {
+      "command": "npx",
+      "args": ["-y", "@cyanheads/obsidian-mcp-server"],
+      "env": {
+        "OBSIDIAN_API_KEY": "${OBSIDIAN_REST_API_KEY}",
+        "OBSIDIAN_API_URL": "https://127.0.0.1:27124"
+      }
+    },
+    "memory": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-memory"]
+    }
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "_comment": "Required env vars: ANDROID_HOME (Android SDK path). ADB server must be running for device interaction.",
+  "mcpServers": {
+    "mobile-mcp": {
+      "command": "npx",
+      "args": ["-y", "@anthropic/mobile-mcp@latest"]
+    },
+    "android-mcp-server": {
+      "command": "npx",
+      "args": ["-y", "minhalvp/android-mcp-server@latest"],
+      "env": {
+        "ANDROID_HOME": "${ANDROID_HOME}"
+      }
+    }
+  }
+}

@@ -1,0 +1,5 @@
+{
+  "name": "android-app",
+  "description": "Android application development with Kotlin/Compose and QA testing standards",
+  "overlays": ["android-dev", "quality-assurance"]
+}

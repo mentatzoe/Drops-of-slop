@@ -1,0 +1,26 @@
+{
+  "_comment": "Required env vars: OBSIDIAN_REST_API_KEY (for Obsidian vault access), MEDIAWIKI_URL and MEDIAWIKI_BOT_USERNAME and MEDIAWIKI_BOT_PASSWORD (for wiki integration). Memory server is local.",
+  "mcpServers": {
+    "memory": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-memory"]
+    },
+    "obsidian": {
+      "command": "npx",
+      "args": ["-y", "@cyanheads/obsidian-mcp-server"],
+      "env": {
+        "OBSIDIAN_API_KEY": "${OBSIDIAN_REST_API_KEY}",
+        "OBSIDIAN_API_URL": "https://127.0.0.1:27124"
+      }
+    },
+    "mediawiki": {
+      "command": "npx",
+      "args": ["-y", "@professional-wiki/mediawiki-mcp-server@latest"],
+      "env": {
+        "MEDIAWIKI_URL": "${MEDIAWIKI_URL}",
+        "MEDIAWIKI_BOT_USERNAME": "${MEDIAWIKI_BOT_USERNAME}",
+        "MEDIAWIKI_BOT_PASSWORD": "${MEDIAWIKI_BOT_PASSWORD}"
+      }
+    }
+  }
+}

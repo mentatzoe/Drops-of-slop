@@ -1,0 +1,7 @@
+{
+  "name": "quality-assurance",
+  "description": "Testing standards, test plan generation, and QA automation workflows",
+  "conflicts": [],
+  "depends": [],
+  "mcp_servers": []
+}

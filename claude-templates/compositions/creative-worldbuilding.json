@@ -1,0 +1,5 @@
+{
+  "name": "creative-worldbuilding",
+  "description": "Fictional worldbuilding with integrated knowledge management — lore tracking, note linking, and consistency checks",
+  "overlays": ["worldbuilding", "knowledge-management"]
+}

@@ -1,0 +1,30 @@
+{
+  "permissions": {
+    "deny": [
+      "WebFetch",
+      "Bash(curl:*)",
+      "Bash(wget:*)",
+      "Bash(rm -rf:*)",
+      "Read(.env*)",
+      "Read(~/.ssh/**)",
+      "Read(~/.aws/**)",
+      "Read(**/*secret*)",
+      "Read(**/*credential*)"
+    ],
+    "ask": [
+      "Bash(git push:*)",
+      "Bash(docker:*)",
+      "Bash(npm publish:*)"
+    ],
+    "allow": [
+      "Read",
+      "Grep",
+      "Glob",
+      "Bash(npm test)",
+      "Bash(npm run lint)",
+      "Bash(git status)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)"
+    ]
+  }
+}
