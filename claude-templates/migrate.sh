@@ -34,6 +34,7 @@ error() { echo -e "${RED}ERROR:${NC} $1" >&2; exit 1; }
 warn() { echo -e "${YELLOW}WARN:${NC} $1" >&2; }
 info() { echo -e "${GREEN}>>>${NC} $1"; }
 dry() { echo -e "${CYAN}[dry-run]${NC} Would: $1"; }
+verbose() { [ "$VERBOSE" -eq 1 ] && echo -e "${CYAN}  [verbose]${NC} $1" || true; }
 
 # --- Argument parsing ---
 
@@ -41,11 +42,14 @@ usage() {
     echo "Usage: $0 <target-project-path> [options]"
     echo ""
     echo "Options:"
-    echo "  --auto             Accept auto-detected overlays without confirmation"
-    echo "  --overlays O1 O2   Specify overlays manually (overrides auto-detection)"
-    echo "  --composition NAME Use a pre-built composition"
-    echo "  --dry-run          Preview changes without applying"
-    echo "  --no-backup        Skip backup step"
+    echo "  --auto               Accept auto-detected overlays without confirmation"
+    echo "  --overlays O1 O2     Specify overlays manually (overrides auto-detection)"
+    echo "  --composition NAME   Use a pre-built composition"
+    echo "  --dry-run            Preview changes without applying"
+    echo "  --no-backup          Skip backup step"
+    echo "  --force              Re-migrate even if already migrated"
+    echo "  --verbose            Show detailed output"
+    echo "  --backup-dir PATH    Custom backup directory (default: .claude/.migration-backup/)"
     echo ""
     echo "Examples:"
     echo "  $0 ~/my-app                           # Interactive mode"
@@ -53,6 +57,8 @@ usage() {
     echo "  $0 ~/my-app --overlays web-dev        # Manual overlay selection"
     echo "  $0 ~/my-app --composition fullstack-web"
     echo "  $0 ~/my-app --dry-run                 # Preview only"
+    echo "  $0 ~/my-app --auto --force            # Re-migrate over existing"
+    echo "  $0 ~/my-app --auto --verbose          # Detailed output"
     exit 1
 }
 
@@ -64,6 +70,9 @@ shift
 AUTO_MODE=0
 DRY_RUN=0
 NO_BACKUP=0
+FORCE=0
+VERBOSE=0
+CUSTOM_BACKUP_DIR=""
 MANUAL_OVERLAYS=()
 COMPOSITION=""
 
@@ -80,6 +89,19 @@ while [ $# -gt 0 ]; do
         --no-backup)
             NO_BACKUP=1
             shift
+            ;;
+        --force)
+            FORCE=1
+            shift
+            ;;
+        --verbose)
+            VERBOSE=1
+            shift
+            ;;
+        --backup-dir)
+            [ $# -lt 2 ] && error "Missing backup directory path"
+            CUSTOM_BACKUP_DIR="$2"
+            shift 2
             ;;
         --composition)
             [ $# -lt 2 ] && error "Missing composition name"
@@ -176,6 +198,23 @@ if signals:
             print(f'    [{overlay}] {s}')
     print()
 "
+
+verbose "Raw detection JSON:"
+[ "$VERBOSE" -eq 1 ] && echo "$DETECTION" | python3 -c "import sys,json; print(json.dumps(json.load(sys.stdin), indent=2))" | sed 's/^/    /'
+
+# Check if already migrated
+if [ -f "$TARGET/.claude/.migration-state.json" ]; then
+    if [ "$FORCE" -eq 0 ]; then
+        PREV_OVERLAYS=$(python3 -c "
+import json
+state = json.load(open('$TARGET/.claude/.migration-state.json'))
+print(' '.join(state.get('overlays', [])))
+" 2>/dev/null || echo "unknown")
+        error "Project already migrated (overlays: $PREV_OVERLAYS). Use --force to re-migrate."
+    else
+        warn "Project already migrated. Re-migrating with --force."
+    fi
+fi
 
 # Check if already activated
 ALREADY_ACTIVATED=0
@@ -364,18 +403,26 @@ elif [ "$DRY_RUN" -eq 1 ]; then
     dry "create backup directory"
 else
     TIMESTAMP=$(date +%Y%m%d-%H%M%S)
-    BACKUP_DIR="$TARGET/.claude/.migration-backup/$TIMESTAMP"
-    mkdir -p "$BACKUP_DIR"
+    if [ -n "$CUSTOM_BACKUP_DIR" ]; then
+        BACKUP_DIR="$CUSTOM_BACKUP_DIR"
+        mkdir -p "$BACKUP_DIR" || error "Cannot create backup directory: $CUSTOM_BACKUP_DIR"
+        verbose "Using custom backup directory: $BACKUP_DIR"
+    else
+        BACKUP_DIR="$TARGET/.claude/.migration-backup/$TIMESTAMP"
+        mkdir -p "$BACKUP_DIR"
+    fi
 
     # Backup CLAUDE.md
     if [ -f "$TARGET/CLAUDE.md" ]; then
         cp "$TARGET/CLAUDE.md" "$BACKUP_DIR/CLAUDE.md"
+        verbose "Backed up CLAUDE.md ($(wc -c < "$TARGET/CLAUDE.md") bytes)"
         info "Backed up: CLAUDE.md"
     fi
 
     # Backup .mcp.json
     if [ -f "$TARGET/.mcp.json" ]; then
         cp "$TARGET/.mcp.json" "$BACKUP_DIR/.mcp.json"
+        verbose "Backed up .mcp.json ($(wc -c < "$TARGET/.mcp.json") bytes)"
         info "Backed up: .mcp.json"
     fi
 
@@ -388,14 +435,20 @@ else
             [ "$BASENAME" = ".migration-backup" ] && continue
             if [ -d "$item" ]; then
                 cp -r "$item" "$BACKUP_DIR/.claude/$BASENAME"
+                verbose "Backed up directory: .claude/$BASENAME"
             else
                 cp "$item" "$BACKUP_DIR/.claude/$BASENAME"
+                verbose "Backed up file: .claude/$BASENAME ($(wc -c < "$item") bytes)"
             fi
         done
         info "Backed up: .claude/ contents"
     fi
 
-    info "Backup saved to: .claude/.migration-backup/$TIMESTAMP"
+    if [ -n "$CUSTOM_BACKUP_DIR" ]; then
+        info "Backup saved to: $BACKUP_DIR"
+    else
+        info "Backup saved to: .claude/.migration-backup/$TIMESTAMP"
+    fi
 fi
 
 # ============================================================
@@ -495,6 +548,7 @@ if [ -d "$BASE_DIR/rules" ]; then
         else
             do_ln "$rule" "$TARGET/.claude/rules/$DEST_NAME"
             CREATED_LINKS+=(".claude/rules/$DEST_NAME")
+            verbose "Symlink: $rule -> $TARGET/.claude/rules/$DEST_NAME"
             info "  Linked: rules/$DEST_NAME"
         fi
     done
@@ -510,6 +564,7 @@ for overlay in "${OVERLAYS[@]}"; do
             LINK_NAME="${overlay}--$(basename "$rule")"
             do_ln "$rule" "$TARGET/.claude/rules/$LINK_NAME"
             CREATED_LINKS+=(".claude/rules/$LINK_NAME")
+            verbose "Symlink: $rule -> $TARGET/.claude/rules/$LINK_NAME"
             info "  Linked: rules/$LINK_NAME"
         done
     fi
@@ -601,14 +656,16 @@ fi
 
 info "Merging MCP configurations..."
 MCP_FILES=()
+MCP_BASE_ARG=()
 
-# Existing .mcp.json first (so custom servers are the base)
+# Existing .mcp.json as the base (so custom servers are preserved)
 if [ -f "$TARGET/.mcp.json" ] && [ "$DRY_RUN" -eq 0 ]; then
-    # Use the backed-up version if we backed up, otherwise current
     if [ -n "$BACKUP_DIR" ] && [ -f "$BACKUP_DIR/.mcp.json" ]; then
-        MCP_FILES+=("$BACKUP_DIR/.mcp.json")
+        MCP_BASE_ARG=("--base" "$BACKUP_DIR/.mcp.json")
+        verbose "Using backed-up .mcp.json as base for merge"
     else
-        MCP_FILES+=("$TARGET/.mcp.json")
+        MCP_BASE_ARG=("--base" "$TARGET/.mcp.json")
+        verbose "Using existing .mcp.json as base for merge"
     fi
 fi
 
@@ -618,11 +675,16 @@ for overlay in "${OVERLAYS[@]}"; do
     [ -f "$MCP" ] && MCP_FILES+=("$MCP")
 done
 
-if [ ${#MCP_FILES[@]} -gt 0 ]; then
+if [ ${#MCP_FILES[@]} -gt 0 ] || [ ${#MCP_BASE_ARG[@]} -gt 0 ]; then
     if [ "$DRY_RUN" -eq 1 ]; then
         dry "merge ${#MCP_FILES[@]} MCP config(s) -> .mcp.json"
     else
-        python3 "$SCRIPTS_DIR/merge-configs.py" --type mcp --output "$TARGET/.mcp.json" "${MCP_FILES[@]}"
+        if [ ${#MCP_FILES[@]} -gt 0 ]; then
+            verbose "Merging MCP files: ${MCP_FILES[*]}"
+            python3 "$SCRIPTS_DIR/merge-configs.py" --type mcp --output "$TARGET/.mcp.json" "${MCP_BASE_ARG[@]+"${MCP_BASE_ARG[@]}"}" "${MCP_FILES[@]}"
+        elif [ ${#MCP_BASE_ARG[@]} -gt 0 ]; then
+            verbose "No overlay MCP configs; preserving existing .mcp.json as-is"
+        fi
     fi
     CREATED_FILES+=(".mcp.json")
     info "  Generated: .mcp.json"
@@ -632,13 +694,16 @@ fi
 
 info "Merging settings..."
 SETTINGS_FILES=()
+SETTINGS_BASE_ARG=()
 
-# Existing settings first
+# Existing settings as base
 if [ -f "$TARGET/.claude/settings.json" ] && [ "$DRY_RUN" -eq 0 ]; then
     if [ -n "$BACKUP_DIR" ] && [ -f "$BACKUP_DIR/.claude/settings.json" ]; then
-        SETTINGS_FILES+=("$BACKUP_DIR/.claude/settings.json")
+        SETTINGS_BASE_ARG=("--base" "$BACKUP_DIR/.claude/settings.json")
+        verbose "Using backed-up settings.json as base for merge"
     else
-        SETTINGS_FILES+=("$TARGET/.claude/settings.json")
+        SETTINGS_BASE_ARG=("--base" "$TARGET/.claude/settings.json")
+        verbose "Using existing settings.json as base for merge"
     fi
 fi
 
@@ -652,7 +717,8 @@ done
 if [ "$DRY_RUN" -eq 1 ]; then
     dry "merge ${#SETTINGS_FILES[@]} settings file(s) -> .claude/settings.json"
 else
-    python3 "$SCRIPTS_DIR/merge-configs.py" --type settings --output "$TARGET/.claude/settings.json" "${SETTINGS_FILES[@]}"
+    verbose "Merging settings files: ${SETTINGS_FILES[*]}"
+    python3 "$SCRIPTS_DIR/merge-configs.py" --type settings --output "$TARGET/.claude/settings.json" "${SETTINGS_BASE_ARG[@]+"${SETTINGS_BASE_ARG[@]}"}" "${SETTINGS_FILES[@]}"
 fi
 CREATED_FILES+=(".claude/settings.json")
 info "  Generated: .claude/settings.json"
@@ -715,9 +781,17 @@ fi
 info "Recording migration state..."
 if [ "$DRY_RUN" -eq 1 ]; then
     dry "write .claude/.activated-overlays.json"
+    dry "write .claude/.migration-state.json"
 else
+    # Determine detection mode
+    DETECTION_MODE="interactive"
+    [ "$AUTO_MODE" -eq 1 ] && DETECTION_MODE="auto"
+    [ ${#MANUAL_OVERLAYS[@]} -gt 0 ] && DETECTION_MODE="manual"
+    [ -n "$COMPOSITION" ] && DETECTION_MODE="composition"
+
     python3 << PYEOF
 import json
+from datetime import datetime, timezone
 
 # Build arrays from bash
 overlays = [$(printf '"%s",' "${OVERLAYS[@]}")]
@@ -731,6 +805,7 @@ created_links = [l for l in created_links if l]
 created_files = [f for f in created_files if f]
 preserved_custom = [p for p in preserved_custom if p]
 
+# Write .activated-overlays.json (for deactivate.sh compatibility)
 state = {
     "overlays": overlays,
     "created_links": created_links,
@@ -744,8 +819,23 @@ state = {
 with open("$TARGET/.claude/.activated-overlays.json", "w") as f:
     json.dump(state, f, indent=2)
     f.write("\n")
+
+# Write .migration-state.json (migration-specific metadata)
+migration_state = {
+    "migrated_at": datetime.now(timezone.utc).isoformat(),
+    "overlays": overlays,
+    "backup_dir": "$([ -n "$BACKUP_DIR" ] && echo "$BACKUP_DIR" || echo "")",
+    "preserved_custom": preserved_custom,
+    "detection_mode": "$DETECTION_MODE",
+    "template_dir": "$SCRIPT_DIR"
+}
+
+with open("$TARGET/.claude/.migration-state.json", "w") as f:
+    json.dump(migration_state, f, indent=2)
+    f.write("\n")
 PYEOF
     info "  Saved: .claude/.activated-overlays.json"
+    info "  Saved: .claude/.migration-state.json"
 fi
 
 # ============================================================

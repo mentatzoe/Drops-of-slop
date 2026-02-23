@@ -26,6 +26,25 @@ STATE_FILE="$TARGET/.claude/.activated-overlays.json"
 
 [ -f "$STATE_FILE" ] || error "No activation state found at $STATE_FILE. Was this project activated?"
 
+# Check for migration state
+IS_MIGRATED=0
+MIGRATION_BACKUP=""
+if [ -f "$TARGET/.claude/.migration-state.json" ]; then
+    IS_MIGRATED=1
+    MIGRATION_BACKUP=$(python3 -c "
+import json
+state = json.load(open('$TARGET/.claude/.migration-state.json'))
+print(state.get('backup_dir', ''))
+" 2>/dev/null || echo "")
+    warn "This project was set up via migrate.sh."
+    warn "Deactivating will remove template artifacts but preserve custom-- prefixed rules."
+    if [ -n "$MIGRATION_BACKUP" ]; then
+        warn "To fully restore pre-migration state, use the backup at:"
+        warn "  $MIGRATION_BACKUP"
+    fi
+    echo ""
+fi
+
 info "Reading activation state..."
 
 # Parse the state file
@@ -86,6 +105,33 @@ done <<< "$CREATED_FILES"
 rm "$STATE_FILE"
 info "  Removed: .claude/.activated-overlays.json"
 ((REMOVED++))
+
+# --- Handle migration-specific cleanup ---
+
+if [ "$IS_MIGRATED" -eq 1 ]; then
+    # Remove migration state file
+    if [ -f "$TARGET/.claude/.migration-state.json" ]; then
+        rm "$TARGET/.claude/.migration-state.json"
+        info "  Removed: .claude/.migration-state.json"
+        ((REMOVED++))
+    fi
+
+    # Restore custom-- prefixed rules to their original names
+    if [ -d "$TARGET/.claude/rules" ]; then
+        for rule in "$TARGET/.claude/rules"/custom--*.md; do
+            [ -f "$rule" ] || continue
+            BASENAME=$(basename "$rule")
+            ORIGINAL_NAME="${BASENAME#custom--}"
+            ORIGINAL_PATH="$TARGET/.claude/rules/$ORIGINAL_NAME"
+            if [ ! -f "$ORIGINAL_PATH" ]; then
+                mv "$rule" "$ORIGINAL_PATH"
+                info "  Restored: rules/$BASENAME -> rules/$ORIGINAL_NAME"
+            else
+                warn "  Cannot restore rules/$BASENAME (rules/$ORIGINAL_NAME already exists)"
+            fi
+        done
+    fi
+fi
 
 # --- Clean up empty directories ---
 
