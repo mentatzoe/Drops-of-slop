@@ -4,6 +4,19 @@ description: Context hygiene and memory discipline
 
 # Memory & Context Management
 
+## Memory Files
+
+Persistent knowledge lives in dedicated memory files (auto-loaded from `.claude/rules/`):
+
+| File | Purpose |
+|------|---------|
+| `memory-profile.md` | Facts about the user, their environment, and project context |
+| `memory-preferences.md` | How the user likes things done — code style, communication, workflow |
+| `memory-decisions.md` | Dated log of past decisions for consistency |
+| `memory-sessions.md` | Rolling summary of recent work (last 10 sessions) |
+
+These files are the source of truth for cross-session knowledge. Update them in-place as you learn — see the auto-update rules in CLAUDE.md.
+
 ## Context Hygiene
 - Keep task scope narrow — solve one problem per conversation thread
 - Summarize findings before switching to a new sub-task
@@ -19,8 +32,3 @@ description: Context hygiene and memory discipline
 - After extensive exploration, summarize key findings in 3-5 bullet points
 - Reference file paths and line numbers instead of quoting large code blocks
 - Use TodoWrite to track multi-step work — it survives context boundaries
-
-## Knowledge Externalization
-- Write decisions into code comments, ADRs, or ARCHITECTURE.md — not just chat
-- Update README or docs when changing public interfaces or setup procedures
-- Add inline comments only where the code's intent is non-obvious

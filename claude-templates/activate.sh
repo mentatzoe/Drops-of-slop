@@ -147,15 +147,31 @@ CREATED_LINKS=()
 CREATED_FILES=()
 
 # --- Symlink base rules (base-- prefix) ---
+# Memory files (memory-profile, memory-preferences, memory-decisions, memory-sessions)
+# are COPIED instead of symlinked so Claude can edit them in-place per project.
 
 info "Linking base rules..."
 if [ -d "$BASE_DIR/rules" ]; then
     for rule in "$BASE_DIR/rules"/*.md; do
         [ -f "$rule" ] || continue
-        LINK_NAME="base--$(basename "$rule")"
-        ln -sf "$rule" "$TARGET/.claude/rules/$LINK_NAME"
-        CREATED_LINKS+=(".claude/rules/$LINK_NAME")
-        info "  Linked: rules/$LINK_NAME"
+        BASENAME="$(basename "$rule")"
+        DEST_NAME="base--$BASENAME"
+
+        if [[ "$BASENAME" == memory-profile.md || "$BASENAME" == memory-preferences.md || \
+              "$BASENAME" == memory-decisions.md || "$BASENAME" == memory-sessions.md ]]; then
+            # Copy memory files — only if they don't already exist (preserve existing data)
+            if [ ! -f "$TARGET/.claude/rules/$DEST_NAME" ]; then
+                cp "$rule" "$TARGET/.claude/rules/$DEST_NAME"
+                info "  Copied: rules/$DEST_NAME (editable memory file)"
+            else
+                info "  Skipped: rules/$DEST_NAME (already exists, preserving data)"
+            fi
+            CREATED_FILES+=(".claude/rules/$DEST_NAME")
+        else
+            ln -sf "$rule" "$TARGET/.claude/rules/$DEST_NAME"
+            CREATED_LINKS+=(".claude/rules/$DEST_NAME")
+            info "  Linked: rules/$DEST_NAME"
+        fi
     done
 fi
 
