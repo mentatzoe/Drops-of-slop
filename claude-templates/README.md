@@ -23,13 +23,18 @@ The base layer provides universal standards that apply to every project:
 
 | File | Purpose |
 |------|---------|
-| `base/CLAUDE.md` | Lightweight router (~60 lines) with quality standards and behavioral constraints |
+| `base/CLAUDE.md` | Lightweight router (~75 lines) with quality standards, behavioral constraints, and memory auto-update rules |
 | `base/rules/security.md` | No hardcoded secrets, parameterized queries, input validation |
-| `base/rules/memory-management.md` | Context hygiene, when to persist vs. discard |
+| `base/rules/memory-management.md` | Context hygiene, when to persist vs. discard, memory file index |
+| `base/rules/memory-profile.md` | Persistent facts about the user and project (editable) |
+| `base/rules/memory-preferences.md` | User preferences for code style, communication, workflow (editable) |
+| `base/rules/memory-decisions.md` | Dated decision log for consistency across sessions (editable) |
+| `base/rules/memory-sessions.md` | Rolling summary of last 10 work sessions (editable) |
 | `base/rules/code-quality.md` | Error handling, testing, naming conventions |
 | `base/rules/git-workflow.md` | Commit format, branch naming, PR conventions |
-| `base/settings.json` | Permission deny-list (blocks curl/wget, protects .env and credentials) |
+| `base/settings.json` | Permission deny-list (blocks curl/wget, protects .env and credentials) + Stop hook |
 | `base/hooks/pre-commit-safety.sh` | Scans staged files for secrets before commit |
+| `base/hooks/stop-learning-capture.sh` | Nudges Claude to capture learnings when a session involves discoveries or fixes |
 
 ### Overlays (activated per project)
 
@@ -86,7 +91,7 @@ When you run `activate.sh`:
 
 1. **Validates** overlays exist and checks for conflicts (e.g., `web-dev` conflicts with `android-dev`)
 2. **Resolves dependencies** — auto-includes any overlays listed in `depends`
-3. **Symlinks base rules** into `.claude/rules/` with `base--` prefix
+3. **Symlinks base rules** into `.claude/rules/` with `base--` prefix (memory files are **copied** instead — see below)
 4. **Symlinks overlay rules** with `{overlay}--` prefix
 5. **Symlinks persona skills** (always included regardless of overlay selection)
 6. **Symlinks overlay skills, commands, and agents** into `.claude/`
@@ -95,6 +100,25 @@ When you run `activate.sh`:
 9. **Copies hooks** (not symlinked, so they survive deactivation cleanly)
 10. **Generates CLAUDE.md** from base template
 11. **Records state** in `.claude/.activated-overlays.json` for clean deactivation
+
+### Memory System
+
+The template includes a modular memory system that persists knowledge across sessions using four dedicated files in `.claude/rules/`:
+
+| File | Updated when... |
+|------|-----------------|
+| `memory-profile.md` | User shares facts about themselves, their environment, or the project |
+| `memory-preferences.md` | User states a preference for how work should be done |
+| `memory-decisions.md` | A decision is made (logged with date and rationale) |
+| `memory-sessions.md` | Substantive work is completed (rolling log, last 10 sessions) |
+
+**How it works:**
+
+- **CLAUDE.md** contains a mandatory auto-update instruction that tells Claude to update memory files *as it goes*, not at the end of a session
+- **Stop hook** (`stop-learning-capture.sh`) pattern-matches conversation context when a session ends — if it detects discoveries, fixes, or workarounds, it nudges Claude to capture learnings
+- **Memory files are copied** (not symlinked) during activation, so each project maintains its own memory. Re-running `activate.sh` preserves existing memory data
+
+This is a "belt and suspenders" approach: the CLAUDE.md instruction handles ~90% of memory capture, and the Stop hook catches sessions where it was forgotten.
 
 ## Creating Custom Overlays
 
