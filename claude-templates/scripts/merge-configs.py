@@ -4,6 +4,10 @@
 Usage:
     python merge-configs.py --type mcp --output .mcp.json base/mcp.json overlays/web-dev/mcp.json
     python merge-configs.py --type settings --output .claude/settings.json base/settings.json overlays/web-dev/settings.json
+
+    # Migration mode: use existing config as starting base
+    python merge-configs.py --type mcp --base existing/.mcp.json --output .mcp.json overlays/web-dev/mcp.json
+    python merge-configs.py --type settings --base existing/settings.json --output .claude/settings.json base/settings.json
 """
 
 import argparse
@@ -38,10 +42,22 @@ def deep_merge(base: dict, overlay: dict) -> dict:
     return result
 
 
-def merge_mcp_configs(files: list[Path]) -> dict:
-    """Merge multiple mcp.json files, combining mcpServers."""
+def merge_mcp_configs(files: list[Path], base: Path | None = None) -> dict:
+    """Merge multiple mcp.json files, combining mcpServers.
+
+    If base is provided, it is loaded as the initial state so that
+    custom servers not overridden by any overlay file are preserved.
+    """
     result = {"mcpServers": {}}
     env_vars = []
+
+    if base and base.exists():
+        with open(base) as fh:
+            base_data = json.load(fh)
+        if "mcpServers" in base_data:
+            result["mcpServers"] = deepcopy(base_data["mcpServers"])
+        if "_comment" in base_data:
+            env_vars.append(base_data["_comment"])
 
     for f in files:
         if not f.exists():
@@ -81,9 +97,16 @@ def merge_mcp_configs(files: list[Path]) -> dict:
     return result
 
 
-def merge_settings_configs(files: list[Path]) -> dict:
-    """Merge multiple settings.json files using deep merge."""
+def merge_settings_configs(files: list[Path], base: Path | None = None) -> dict:
+    """Merge multiple settings.json files using deep merge.
+
+    If base is provided, it is loaded as the initial state so that
+    custom settings not overridden by any overlay file are preserved.
+    """
     result = {}
+    if base and base.exists():
+        with open(base) as fh:
+            result = json.load(fh)
     for f in files:
         if not f.exists():
             continue
@@ -105,14 +128,18 @@ def main():
         "--output", "-o", required=True, help="Output file path"
     )
     parser.add_argument(
+        "--base", "-b", type=Path, default=None,
+        help="Existing config to use as starting base (for migration merging)"
+    )
+    parser.add_argument(
         "files", nargs="+", type=Path, help="Config files to merge (in order)"
     )
     args = parser.parse_args()
 
     if args.type == "mcp":
-        result = merge_mcp_configs(args.files)
+        result = merge_mcp_configs(args.files, base=args.base)
     else:
-        result = merge_settings_configs(args.files)
+        result = merge_settings_configs(args.files, base=args.base)
 
     output_path = Path(args.output)
     output_path.parent.mkdir(parents=True, exist_ok=True)

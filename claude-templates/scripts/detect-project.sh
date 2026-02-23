@@ -47,6 +47,22 @@ print(json.dumps(signals))
 " "$SIGNALS_JSON" "$overlay" "$signal")
 }
 
+# --- Parse existing MCP servers (reused across detections) ---
+
+EXISTING_MCP_SERVERS_LIST=""
+if [ -f "$TARGET/.mcp.json" ]; then
+    EXISTING_MCP_SERVERS_LIST=$(python3 -c "
+import json
+data = json.load(open('$TARGET/.mcp.json'))
+for name in data.get('mcpServers', {}):
+    print(name)
+" 2>/dev/null || true)
+fi
+
+has_mcp_server() {
+    echo "$EXISTING_MCP_SERVERS_LIST" | grep -qiF "$1" 2>/dev/null
+}
+
 # --- Language & Framework Detection ---
 
 # JavaScript / TypeScript
@@ -209,6 +225,85 @@ for test_cfg in "$TARGET/jest.config.js" "$TARGET/jest.config.ts" "$TARGET/vites
         break
     fi
 done
+
+# --- MCP-based signals for existing overlays ---
+
+# web-dev: playwright in MCP
+has_mcp_server "playwright" && add_overlay "web-dev" "playwright MCP server in .mcp.json"
+
+# web-dev: ESLint config files
+for eslint_cfg in "$TARGET/.eslintrc" "$TARGET/.eslintrc.js" "$TARGET/.eslintrc.json" "$TARGET/.eslintrc.yml" "$TARGET/eslint.config.js" "$TARGET/eslint.config.mjs"; do
+    if [ -f "$eslint_cfg" ]; then
+        add_overlay "web-dev" "$(basename "$eslint_cfg") found"
+        break
+    fi
+done
+
+# ai-research: experiment tracking directories
+for ml_dir in "$TARGET/wandb" "$TARGET/mlruns" "$TARGET/experiments"; do
+    if [ -d "$ml_dir" ]; then
+        add_overlay "ai-research" "$(basename "$ml_dir")/ directory found"
+        break
+    fi
+done
+
+# ai-research: conda environment with ML packages
+if [ -f "$TARGET/environment.yml" ]; then
+    if grep -qiE '(torch|tensorflow|keras|scikit-learn|sklearn|transformers|jax)' "$TARGET/environment.yml" 2>/dev/null; then
+        add_overlay "ai-research" "environment.yml with ML packages"
+    fi
+fi
+
+# ai-research: MCP servers
+has_mcp_server "huggingface" && add_overlay "ai-research" "huggingface MCP server in .mcp.json"
+
+# gamedev: GDScript files in scripts/ subdirectory (Godot convention)
+if compgen -G "$TARGET/scripts/*.gd" > /dev/null 2>&1; then
+    add_overlay "gamedev" "GDScript files in scripts/ directory"
+fi
+
+# gamedev: MCP servers
+has_mcp_server "gdai-mcp" && add_overlay "gamedev" "gdai-mcp server in .mcp.json"
+has_mcp_server "unity-mcp" && add_overlay "gamedev" "unity-mcp server in .mcp.json"
+has_mcp_server "blender-mcp" && add_overlay "gamedev" "blender-mcp server in .mcp.json"
+
+# quality-assurance: CI config files
+if [ -d "$TARGET/.github/workflows" ]; then
+    add_overlay "quality-assurance" ".github/workflows/ directory found"
+fi
+[ -f "$TARGET/Jenkinsfile" ] && add_overlay "quality-assurance" "Jenkinsfile found"
+[ -d "$TARGET/.circleci" ] && add_overlay "quality-assurance" ".circleci/ directory found"
+
+# --- New overlay detections ---
+
+# research: search-oriented MCP servers
+has_mcp_server "brave-search" && add_overlay "research" "brave-search MCP server in .mcp.json"
+has_mcp_server "exa" && add_overlay "research" "exa MCP server in .mcp.json"
+
+# worldbuilding: characteristic directories
+for wb_dir in "$TARGET/lore" "$TARGET/worldbuilding" "$TARGET/world"; do
+    if [ -d "$wb_dir" ]; then
+        add_overlay "worldbuilding" "$(basename "$wb_dir")/ directory found"
+    fi
+done
+
+# worldbuilding: combination of memory + obsidian + mediawiki MCP servers
+if has_mcp_server "memory" && has_mcp_server "obsidian" && has_mcp_server "mediawiki"; then
+    add_overlay "worldbuilding" "memory + obsidian + mediawiki MCP servers detected"
+fi
+
+# wiki-management: MCP server
+has_mcp_server "mediawiki" && add_overlay "wiki-management" "mediawiki MCP server in .mcp.json"
+
+# uxr: characteristic directories
+for uxr_dir in "$TARGET/research" "$TARGET/studies" "$TARGET/uxr"; do
+    if [ -d "$uxr_dir" ]; then
+        add_overlay "uxr" "$(basename "$uxr_dir")/ directory found"
+    fi
+done
+
+# knowledge-management: MCP server
+has_mcp_server "obsidian" && add_overlay "knowledge-management" "obsidian MCP server in .mcp.json"
 
 # --- Detect Existing Claude Config ---
 
