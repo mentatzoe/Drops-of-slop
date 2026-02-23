@@ -5,7 +5,10 @@ A template repository for managing Claude Code configurations across diverse pro
 ## Quick Start
 
 ```bash
-# Activate overlays in your project
+# Migrate an existing project (auto-detects overlays, preserves custom config)
+./migrate.sh ~/my-project
+
+# Or activate overlays on a clean project
 ./activate.sh ~/my-project web-dev quality-assurance
 
 # Or use a pre-built composition
@@ -182,9 +185,66 @@ MCP servers use `${ENV_VAR}` syntax. Set these before activation:
 | `MEDIAWIKI_BOT_PASSWORD` | worldbuilding, wiki-management overlays |
 | `ANDROID_HOME` | android-dev overlay |
 
+## Migrating Existing Projects
+
+The `migrate.sh` script analyzes an existing project, auto-detects appropriate overlays, and migrates to the overlay architecture while preserving all custom configuration.
+
+### Usage
+
+```bash
+# Interactive: auto-detect overlays and confirm before applying
+./migrate.sh ~/existing-project
+
+# Auto mode: accept auto-detected overlays without confirmation
+./migrate.sh ~/existing-project --auto
+
+# Manual: specify overlays explicitly
+./migrate.sh ~/existing-project --overlays web-dev quality-assurance
+
+# Composition: use a pre-built overlay combo
+./migrate.sh ~/existing-project --composition fullstack-web
+
+# Dry run: preview changes without applying
+./migrate.sh ~/existing-project --dry-run
+
+# Skip backup (e.g., when re-running after fixing issues)
+./migrate.sh ~/existing-project --no-backup
+```
+
+### What it does
+
+1. **Analyzes the project** — detects languages, frameworks, test configs, and existing Claude Code configuration
+2. **Recommends overlays** — maps detected signals to overlays (e.g., `package.json` with React deps -> `web-dev`)
+3. **Backs up existing config** — saves CLAUDE.md, `.claude/`, and `.mcp.json` to `.claude/.migration-backup/<timestamp>/`
+4. **Preserves custom content**:
+   - Custom rules are renamed with `custom--` prefix (e.g., `my-rules.md` -> `custom--my-rules.md`)
+   - Custom skills and commands are left in place
+   - Custom MCP servers are merged with overlay servers
+   - Custom CLAUDE.md content is preserved under a `## Project-Specific` section
+   - Custom hooks are renamed with `custom-` prefix if they conflict with template hooks
+5. **Applies the overlay system** — same as `activate.sh` but with merge-aware logic
+
+### Detection signals
+
+| Signal | Overlay |
+|--------|---------|
+| `package.json` with React/Next/Vue/Angular/Svelte deps | `web-dev` |
+| `build.gradle` with Android plugin, `AndroidManifest.xml` | `android-dev` |
+| `project.godot`, Unity project structure, `.blend` files | `gamedev` |
+| Python deps with torch/tensorflow/sklearn/transformers | `ai-research` |
+| `.obsidian/` directory | `knowledge-management` |
+| `LocalSettings.php` | `wiki-management` |
+| Test dirs (`test/`, `__tests__/`), test configs (jest, pytest, vitest) | `quality-assurance` |
+
+### Re-migration
+
+Running `migrate.sh` on an already-migrated project is safe — it deactivates the existing setup first, then re-migrates while preserving custom content.
+
 ## Scripts
 
 | Script | Purpose |
 |--------|---------|
 | `scripts/merge-configs.py` | Deep-merges MCP and settings JSON files |
 | `scripts/validate-overlay.sh` | Validates overlay structure and schema |
+| `scripts/detect-project.sh` | Analyzes a project and recommends overlays (JSON output) |
+| `scripts/merge-claude-md.py` | Merges existing CLAUDE.md with the base template |
