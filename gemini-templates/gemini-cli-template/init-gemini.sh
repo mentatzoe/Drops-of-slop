@@ -12,20 +12,34 @@ TEMPLATE_PATH="gemini-templates/gemini-cli-template"
 echo "💎 Initializing Gemini CLI Workspace..."
 
 is_migration=false
+DRY_RUN=${DRY_RUN:-false}
+
+# Parse command-line args for dry-run
+for arg in "$@"; do
+    if [[ "$arg" == "--dry-run" || "$arg" == "-d" ]]; then
+        DRY_RUN=true
+        echo "🔍 DRY-RUN MODE ACTIVATED: No files will be modified in your workspace."
+    fi
+done
 
 # 1. Detect existing setup and ask for Migration
 if [ -d ".gemini" ] || [ -f "GEMINI.md" ]; then
     echo "⚠️  Existing Gemini configuration detected."
-    read -p "Do you want to safely migrate your existing setup to the Gold Standard architecture? [y/N] " confirm
-    if [[ "$confirm" =~ ^[Yy]$ ]]; then
+    if [ "$DRY_RUN" = true ]; then
+        echo "💡 [Dry-Run] Would prompt for migration."
         is_migration=true
-        TIMESTAMP=$(date +%s)
-        echo "📦 Creating backups..."
-        [ -d ".gemini" ] && cp -R .gemini ".gemini.backup_${TIMESTAMP}"
-        [ -f "GEMINI.md" ] && cp GEMINI.md "GEMINI.backup_${TIMESTAMP}.md"
     else
-        echo "Aborting initialization to protect existing files."
-        exit 1
+        read -p "Do you want to safely migrate your existing setup to the Gold Standard architecture? [y/N] " confirm
+        if [[ "$confirm" =~ ^[Yy]$ ]]; then
+            is_migration=true
+            TIMESTAMP=$(date +%s)
+            echo "📦 Creating backups..."
+            [ -d ".gemini" ] && cp -R .gemini ".gemini.backup_${TIMESTAMP}"
+            [ -f "GEMINI.md" ] && cp GEMINI.md "GEMINI.backup_${TIMESTAMP}.md"
+        else
+            echo "Aborting initialization to protect existing files."
+            exit 1
+        fi
     fi
 fi
 
@@ -43,6 +57,28 @@ cd - > /dev/null
 echo "📂 Applying configuration..."
 
 if [ "$is_migration" = true ]; then
+    if [ "$DRY_RUN" = true ]; then
+        echo "📋 [Dry-Run] Migration Report:"
+        echo "  - Would backup legacy files to .gemini.backup_<timestamp>"
+        echo "  - Would inject the following new Template Agents:"
+        ls -1 "$TMP_DIR/$TEMPLATE_PATH/.gemini/agents" | sed 's/^/      /'
+        echo "  - Would overwrite root GEMINI.md with strictly JIT router rules"
+        
+        # Dry-run the jq merge preview
+        if [ -f ".gemini/settings.json" ] && command -v jq &> /dev/null; then
+            echo "  - Would merge settings.json:"
+            echo ""
+            jq -s '.[0] * .[1]' .gemini/settings.json "$TMP_DIR/$TEMPLATE_PATH/.gemini/settings.json"
+            echo ""
+        else
+            echo "  - No local settings.json found or jq missing. Would implement template defaults."
+        fi
+        
+        echo "🔍 Dry-run complete. Run without --dry-run to apply these changes."
+        rm -rf "$TMP_DIR"
+        exit 0
+    fi
+
     # Migration Merge Logic A: Copy template agents directly in (preserving existing legacy agents implicitly)
     cp -R "$TMP_DIR/$TEMPLATE_PATH/.gemini/agents/"* .gemini/agents/ 2>/dev/null || true
     
@@ -62,6 +98,14 @@ if [ "$is_migration" = true ]; then
     cp -R "$TMP_DIR/$TEMPLATE_PATH/.gemini/rules" .gemini/
     cp "$TMP_DIR/$TEMPLATE_PATH/.gemini/GEMINI.md" .gemini/
 else
+    if [ "$DRY_RUN" = true ]; then
+        echo "📋 [Dry-Run] Clean Install Report:"
+        echo "  - Would install Gold Standard configuration to .gemini/"
+        echo "🔍 Dry-run complete. Run without --dry-run to apply these changes."
+        rm -rf "$TMP_DIR"
+        exit 0
+    fi
+
     # Clean Install
     cp -R "$TMP_DIR/$TEMPLATE_PATH/.gemini" .
     cp "$TMP_DIR/$TEMPLATE_PATH/.gemini/GEMINI.md" .gemini/
