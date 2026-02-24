@@ -1,0 +1,9 @@
+[submodule "claude-templates/tests/helpers/bats-support"]
+	path = claude-templates/tests/helpers/bats-support
+	url = https://github.com/bats-core/bats-support.git
+[submodule "claude-templates/tests/helpers/bats-assert"]
+	path = claude-templates/tests/helpers/bats-assert
+	url = https://github.com/bats-core/bats-assert.git
+[submodule "claude-templates/tests/helpers/bats-file"]
+	path = claude-templates/tests/helpers/bats-file
+	url = https://github.com/bats-core/bats-file.git
