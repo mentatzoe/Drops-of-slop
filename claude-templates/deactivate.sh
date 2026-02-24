@@ -80,10 +80,10 @@ while IFS= read -r link; do
     if [ -L "$FULL_PATH" ]; then
         rm "$FULL_PATH"
         info "  Removed symlink: $link"
-        ((REMOVED++))
+        REMOVED=$((REMOVED + 1))
     elif [ -e "$FULL_PATH" ]; then
         warn "  Skipping (not a symlink, may be user-created): $link"
-        ((SKIPPED++))
+        SKIPPED=$((SKIPPED + 1))
     fi
 done <<< "$CREATED_LINKS"
 
@@ -96,15 +96,82 @@ while IFS= read -r file; do
     if [ -f "$FULL_PATH" ]; then
         rm "$FULL_PATH"
         info "  Removed: $file"
-        ((REMOVED++))
+        REMOVED=$((REMOVED + 1))
     fi
 done <<< "$CREATED_FILES"
+
+# --- Remove external components ---
+
+info "Removing external components..."
+EXTERNAL_REMOVED=$(python3 -c "
+import json, os, shutil
+
+state = json.load(open('$STATE_FILE'))
+ec = state.get('external_components', {})
+removed = 0
+
+# Remove agents
+for agent in ec.get('agents', []):
+    path = '$TARGET/' + agent.get('installed_to', '')
+    if os.path.isfile(path):
+        os.remove(path)
+        print(f'  Removed: {agent[\"installed_to\"]}')
+        removed += 1
+
+# Remove commands
+for cmd in ec.get('commands', []):
+    path = '$TARGET/' + cmd.get('installed_to', '')
+    if os.path.isfile(path):
+        os.remove(path)
+        print(f'  Removed: {cmd[\"installed_to\"]}')
+        removed += 1
+
+# Remove skills (directories)
+for skill in ec.get('skills', []):
+    path = '$TARGET/' + skill.get('installed_to', '').rstrip('/')
+    if os.path.isdir(path):
+        shutil.rmtree(path)
+        print(f'  Removed: {skill[\"installed_to\"]}')
+        removed += 1
+
+# Remove MCP server entries
+for mcp in ec.get('mcps', []):
+    servers = mcp.get('servers_added', [])
+    mcp_file = '$TARGET/.mcp.json'
+    if os.path.isfile(mcp_file) and servers:
+        with open(mcp_file) as f:
+            mcp_config = json.load(f)
+        for srv in servers:
+            mcp_config.get('mcpServers', {}).pop(srv, None)
+        with open(mcp_file, 'w') as f:
+            json.dump(mcp_config, f, indent=2)
+            f.write('\n')
+        print(f'  Removed MCP servers: {servers}')
+        removed += 1
+
+# Remove hook scripts
+for hook in ec.get('hooks', []):
+    hooks_dir = '$TARGET/.claude/hooks/'
+    prefix = 'ext--' + hook['name'] + '--'
+    if os.path.isdir(hooks_dir):
+        for fname in os.listdir(hooks_dir):
+            if fname.startswith(prefix):
+                os.remove(os.path.join(hooks_dir, fname))
+                print(f'  Removed: .claude/hooks/{fname}')
+                removed += 1
+
+# Settings were merged in; they will be removed when settings.json is deleted below
+
+print(removed)
+" 2>/dev/null)
+EXTERNAL_REMOVED_COUNT=$(echo "$EXTERNAL_REMOVED" | tail -1)
+REMOVED=$((REMOVED + EXTERNAL_REMOVED_COUNT))
 
 # --- Remove activation state ---
 
 rm "$STATE_FILE"
 info "  Removed: .claude/.activated-overlays.json"
-((REMOVED++))
+REMOVED=$((REMOVED + 1))
 
 # --- Handle migration-specific cleanup ---
 

@@ -3,5 +3,13 @@
   "description": "MediaWiki content management — article editing, style enforcement, and wiki maintenance",
   "conflicts": [],
   "depends": [],
-  "mcp_servers": ["mediawiki"]
+  "mcp_servers": ["mediawiki"],
+  "recommended_external": {
+    "agents": [
+      "documentation/api-documenter"
+    ],
+    "commands": [
+      "documentation/docs-maintenance"
+    ]
+  }
 }

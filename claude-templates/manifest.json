@@ -5,61 +5,107 @@
       "description": "Web frontend development with React/Next.js",
       "conflicts": ["android-dev"],
       "depends": [],
-      "mcp_servers": ["playwright", "context7", "filesystem"]
+      "mcp_servers": ["playwright", "context7", "filesystem"],
+      "recommended_external": {
+        "agents": ["development-team/frontend-developer", "api-graphql/api-designer"],
+        "commands": ["testing/generate-tests"],
+        "skills": ["development/frontend-dev-guidelines", "development/nextjs-best-practices"]
+      }
     },
     "android-dev": {
       "description": "Android development with Kotlin and Jetpack Compose",
       "conflicts": ["web-dev"],
       "depends": [],
-      "mcp_servers": ["mobile-mcp", "android-mcp-server"]
+      "mcp_servers": ["mobile-mcp", "android-mcp-server"],
+      "recommended_external": {
+        "agents": ["development-team/mobile-developer", "development-team/mobile-app-developer"],
+        "commands": ["testing/generate-tests"],
+        "skills": ["creative-design/mobile-design"]
+      }
     },
     "gamedev": {
       "description": "Game development with Godot, Unity, and Blender",
       "conflicts": [],
       "depends": [],
-      "mcp_servers": ["gdai-mcp", "unity-mcp", "blender-mcp"]
+      "mcp_servers": ["gdai-mcp", "unity-mcp", "blender-mcp"],
+      "recommended_external": {
+        "agents": ["game-development/game-developer", "game-development/game-designer", "game-development/unity-game-developer"],
+        "commands": ["game-development/game-asset-pipeline", "game-development/game-testing-framework"],
+        "skills": ["creative-design/game-development"]
+      }
     },
     "ai-research": {
       "description": "AI/ML research with experiment tracking and paper analysis",
       "conflicts": [],
       "depends": [],
-      "mcp_servers": ["huggingface", "arxiv", "sequential-thinking"]
+      "mcp_servers": ["huggingface", "arxiv", "sequential-thinking"],
+      "recommended_external": {
+        "agents": ["ai-specialists/llm-architect", "ai-specialists/model-evaluator"],
+        "skills": ["ai-research/agent-evaluation", "ai-research/qa-test-planner"],
+        "mcps": ["deepresearch/mcp-server-nia"]
+      }
     },
     "uxr": {
       "description": "User experience research — study design and insight synthesis",
       "conflicts": [],
       "depends": [],
-      "mcp_servers": []
+      "mcp_servers": [],
+      "recommended_external": {
+        "agents": ["business-marketing/ux-researcher", "development-team/ui-ux-designer"],
+        "skills": ["creative-design/accessibility-auditor"]
+      }
     },
     "quality-assurance": {
       "description": "Testing standards, test plans, and QA automation",
       "conflicts": [],
       "depends": [],
-      "mcp_servers": []
+      "mcp_servers": [],
+      "recommended_external": {
+        "agents": ["development-team/test-generator", "development-tools/qa-expert"],
+        "commands": ["testing/generate-tests"],
+        "hooks": ["testing/test-runner"]
+      }
     },
     "research": {
       "description": "General research with web search and citation management",
       "conflicts": [],
       "depends": [],
-      "mcp_servers": ["brave-search", "exa"]
+      "mcp_servers": ["brave-search", "exa"],
+      "recommended_external": {
+        "agents": ["deep-research-team/academic-researcher", "data-ai/task-researcher"],
+        "skills": ["ai-research/agent-evaluation"],
+        "mcps": ["deepresearch/mcp-server-nia"]
+      }
     },
     "knowledge-management": {
       "description": "Personal knowledge management with Obsidian and note linking",
       "conflicts": [],
       "depends": [],
-      "mcp_servers": ["obsidian", "memory"]
+      "mcp_servers": ["obsidian", "memory"],
+      "recommended_external": {
+        "agents": ["obsidian-ops-team/content-curator", "expert-advisors/knowledge-synthesizer"],
+        "skills": ["document-processing/obsidian-markdown", "productivity/address-github-comments"]
+      }
     },
     "worldbuilding": {
       "description": "Fictional worldbuilding — lore, consistency, and narrative design",
       "conflicts": [],
       "depends": [],
-      "mcp_servers": ["memory", "obsidian", "mediawiki"]
+      "mcp_servers": ["memory", "obsidian", "mediawiki"],
+      "recommended_external": {
+        "agents": ["documentation/technical-writer"],
+        "skills": ["creative-design/algorithmic-art"]
+      }
     },
     "wiki-management": {
       "description": "MediaWiki content management and article maintenance",
       "conflicts": [],
       "depends": [],
-      "mcp_servers": ["mediawiki"]
+      "mcp_servers": ["mediawiki"],
+      "recommended_external": {
+        "agents": ["documentation/api-documenter"],
+        "commands": ["documentation/docs-maintenance"]
+      }
     }
   },
   "compositions": {

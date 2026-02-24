@@ -3,5 +3,19 @@
   "description": "Game development with Godot, Unity, or Blender pipelines",
   "conflicts": [],
   "depends": [],
-  "mcp_servers": ["gdai-mcp", "unity-mcp", "blender-mcp"]
+  "mcp_servers": ["gdai-mcp", "unity-mcp", "blender-mcp"],
+  "recommended_external": {
+    "agents": [
+      "game-development/game-developer",
+      "game-development/game-designer",
+      "game-development/unity-game-developer"
+    ],
+    "commands": [
+      "game-development/game-asset-pipeline",
+      "game-development/game-testing-framework"
+    ],
+    "skills": [
+      "creative-design/game-development"
+    ]
+  }
 }

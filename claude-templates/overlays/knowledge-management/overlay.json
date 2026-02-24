@@ -3,5 +3,15 @@
   "description": "Personal knowledge management with Obsidian, note linking, and knowledge graphs",
   "conflicts": [],
   "depends": [],
-  "mcp_servers": ["obsidian", "memory"]
+  "mcp_servers": ["obsidian", "memory"],
+  "recommended_external": {
+    "agents": [
+      "obsidian-ops-team/content-curator",
+      "expert-advisors/knowledge-synthesizer"
+    ],
+    "skills": [
+      "document-processing/obsidian-markdown",
+      "productivity/address-github-comments"
+    ]
+  }
 }

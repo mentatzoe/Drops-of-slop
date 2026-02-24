@@ -3,5 +3,18 @@
   "description": "Web frontend development with React/Next.js patterns, API design, and component architecture",
   "conflicts": ["android-dev"],
   "depends": [],
-  "mcp_servers": ["playwright", "context7", "filesystem"]
+  "mcp_servers": ["playwright", "context7", "filesystem"],
+  "recommended_external": {
+    "agents": [
+      "development-team/frontend-developer",
+      "api-graphql/api-designer"
+    ],
+    "commands": [
+      "testing/generate-tests"
+    ],
+    "skills": [
+      "development/frontend-dev-guidelines",
+      "development/nextjs-best-practices"
+    ]
+  }
 }

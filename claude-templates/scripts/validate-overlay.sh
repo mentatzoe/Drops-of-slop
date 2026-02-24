@@ -15,8 +15,8 @@ NC='\033[0m'
 ERRORS=0
 WARNINGS=0
 
-error() { echo -e "${RED}ERROR:${NC} $1"; ((ERRORS++)); }
-warn() { echo -e "${YELLOW}WARN:${NC} $1"; ((WARNINGS++)); }
+error() { echo -e "${RED}ERROR:${NC} $1"; ERRORS=$((ERRORS + 1)); }
+warn() { echo -e "${YELLOW}WARN:${NC} $1"; WARNINGS=$((WARNINGS + 1)); }
 ok() { echo -e "${GREEN}OK:${NC} $1"; }
 
 OVERLAY_DIR="${1:?Usage: validate-overlay.sh <overlay-directory> [manifest.json]}"
@@ -161,6 +161,96 @@ else:
         ok "Overlay registered in manifest.json"
     else
         warn "Overlay not found in manifest.json"
+    fi
+fi
+
+# 6. Check recommended_external if present
+if [ -f "$OVERLAY_JSON" ]; then
+    RECOMMENDED_RESULT=$(python3 -c "
+import json, sys
+
+with open('$OVERLAY_JSON') as f:
+    data = json.load(f)
+
+rec = data.get('recommended_external')
+if rec is None:
+    print('SKIP')
+    sys.exit(0)
+
+if not isinstance(rec, dict):
+    print('ERROR|recommended_external must be an object')
+    sys.exit(0)
+
+valid_keys = {'agents', 'commands', 'skills', 'mcps', 'hooks', 'settings'}
+errors = []
+for key, val in rec.items():
+    if key not in valid_keys:
+        errors.append(f'unknown key \"{key}\" in recommended_external (valid: {sorted(valid_keys)})')
+    elif not isinstance(val, list):
+        errors.append(f'recommended_external.{key} must be an array')
+    else:
+        for item in val:
+            if not isinstance(item, str):
+                errors.append(f'recommended_external.{key} must contain strings, got {type(item).__name__}')
+            elif '/' not in item:
+                errors.append(f'recommended_external.{key} entry \"{item}\" must use category/name format')
+
+if errors:
+    for e in errors:
+        print(f'ERROR|{e}')
+else:
+    print('OK')
+" 2>/dev/null)
+
+    if [ "$RECOMMENDED_RESULT" = "SKIP" ]; then
+        : # No recommended_external field, nothing to validate
+    elif [ "$RECOMMENDED_RESULT" = "OK" ]; then
+        ok "recommended_external is valid"
+
+        # Optionally cross-check against catalog
+        SCRIPT_DIR_VAL="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+        CATALOG="$(dirname "$SCRIPT_DIR_VAL")/external-catalog.json"
+        if [ -f "$CATALOG" ]; then
+            CATALOG_CHECK=$(python3 -c "
+import json
+
+with open('$OVERLAY_JSON') as f:
+    overlay = json.load(f)
+with open('$CATALOG') as f:
+    catalog = json.load(f)
+
+rec = overlay.get('recommended_external', {})
+missing = []
+for comp_type, paths in rec.items():
+    catalog_items = catalog.get('components', {}).get(comp_type, [])
+    catalog_paths = {i['path'] for i in catalog_items}
+    for path in paths:
+        if path not in catalog_paths:
+            missing.append(f'{comp_type}/{path}')
+
+if missing:
+    for m in missing:
+        print(f'WARN|{m}')
+else:
+    print('OK')
+" 2>/dev/null)
+
+            if [ "$CATALOG_CHECK" = "OK" ]; then
+                ok "All recommended externals found in catalog"
+            else
+                while IFS='|' read -r level msg; do
+                    [ -z "$msg" ] && continue
+                    warn "Recommended external not in catalog: $msg"
+                done <<< "$CATALOG_CHECK"
+            fi
+        fi
+    else
+        while IFS='|' read -r level msg; do
+            [ -z "$msg" ] && continue
+            if [ "$level" = "ERROR" ]; then
+                error "recommended_external: $msg"
+            fi
+        done <<< "$RECOMMENDED_RESULT"
     fi
 fi
 
