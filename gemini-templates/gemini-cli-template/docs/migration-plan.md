@@ -35,3 +35,11 @@ Migrating an existing setup requires handling JSON configuration independently f
 5. Bash deep-merges `settings.json` using `jq`.
 6. Bash drops `GEMINI.md` and Gold Standard agents into the workspace.
 7. Terminal prints explicit instructions on how the user should port custom legacy instructions from their backup into the new architecture.
+
+## 5. Recurring Upstream Updates (Post-Migration)
+Once a project has successfully migrated to the Gold Standard JIT architecture via `init-gemini.sh`, subsequent updates should **not** use `init-gemini.sh` again, as it expects to execute a blunt overwrite of `GEMINI.md`.
+Instead, use the non-destructive updater:
+```bash
+# Pulls the newest agents, external-catalog.json, and security hooks without overwriting local custom context
+./update-gemini.sh --version=main
+```

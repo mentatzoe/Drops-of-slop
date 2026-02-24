@@ -30,11 +30,21 @@ When you initiate a session, `GEMINI.md` analyzes your request and dynamically d
 
 ### Migrating Existing Projects
 
-If you already have a `.gemini/` workspace initialized, `init-gemini.sh` will safely adapt your architecture without destroying your context:
+If you already have a `.gemini/` workspace initialized (pre-Gold Standard), `init-gemini.sh` will safely adapt your architecture:
 
 1. **Automated Backup:** The script detects existing setups and prompts for migration, silently backing up your legacy files to a `.gemini.backup_<timestamp>` folder.
 2. **Deep Merging (Phase 1):** It merges your existing `settings.json` with the new template using `jq`. This retains your custom MCP servers alongside the new zero-trust security hooks.
 3. **Semantic Mapping (Phase 2):** To enforce the strict JIT routing constraints, the script overwrites the root `GEMINI.md`. It will instruct you to manually copy any custom system prompts from your backup into the appropriate specialized overlay agents (or define a new one).
+
+### Receiving Upstream Updates
+
+Once migrated to the Gold Standard, you can periodically receive new capabilities (like the Catalog Manager and Standalone Browser) by running the recurring update script. This script performs a safe 3-way merge and preserves your local `GEMINI.md`:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/mentatzoe/Drops-of-slop/main/gemini-templates/gemini-cli-template/update-gemini.sh -o update-gemini.sh
+chmod +x update-gemini.sh
+./update-gemini.sh --version=main
+```
 
 ### The Autonomous Workflow
 
