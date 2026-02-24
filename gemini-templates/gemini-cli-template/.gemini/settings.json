@@ -1,0 +1,31 @@
+{
+  "general": {
+    "defaultApprovalMode": "auto_edit"
+  },
+  "tools": {
+    "sandbox": "docker"
+  },
+  "telemetry": {
+    "enabled": true,
+    "logFile": ".gemini/telemetry.json"
+  },
+  "hooks": {
+    "BeforeTool": [
+      ".gemini/hooks/block-secrets.sh"
+    ]
+  },
+  "mcpServers": {
+    "engram": {
+      "command": "npx",
+      "args": ["engram-mcp"]
+    },
+    "obsidian": {
+      "command": "npx",
+      "args": ["obsidian-mcp"]
+    },
+    "figma": {
+      "command": "npx",
+      "args": ["figma-mcp"]
+    }
+  }
+}

@@ -1,0 +1,5 @@
+[commands]
+deny = ["rm -rf", "sudo"]
+
+[filesystem]
+enforce = "ask_user"

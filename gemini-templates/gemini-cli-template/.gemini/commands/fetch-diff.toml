@@ -1,0 +1,8 @@
+name = "fetch-diff"
+description = "Fetches the current git diff of the repository"
+
+[execution]
+# Automatically run 'git diff' in the sandbox without prompting, returning the inline context
+command = """
+!{ git diff {{args}} }
+"""

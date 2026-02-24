@@ -1,0 +1,17 @@
+{
+  "name": "web-dev",
+  "version": "1.0.0",
+  "description": "Domain profile for Frontend Web Development.",
+  "agents": ["agents/ui-architect.yaml"],
+  "rules": ["rules/ui-standards.md"],
+  "mcpServers": {
+    "figma": {
+      "command": "npx",
+      "args": ["figma-mcp"]
+    },
+    "github": {
+      "command": "npx",
+      "args": ["github-mcp"]
+    }
+  }
+}
