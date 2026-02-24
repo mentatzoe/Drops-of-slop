@@ -28,6 +28,7 @@ AGENTS_DIR="$SCRIPT_DIR/agents"
 COMPOSITIONS_DIR="$SCRIPT_DIR/compositions"
 SCRIPTS_DIR="$SCRIPT_DIR/scripts"
 MANIFEST="$SCRIPT_DIR/manifest.json"
+TEMPLATE_VERSION=$(cat "$SCRIPT_DIR/VERSION" 2>/dev/null || echo "unknown")
 
 error() { echo -e "${RED}ERROR:${NC} $1" >&2; exit 1; }
 warn() { echo -e "${YELLOW}WARN:${NC} $1" >&2; }
@@ -335,7 +336,11 @@ _files_json=$(printf '%s\n' "${CREATED_FILES[@]}" | python3 -c "import json,sys;
 
 python3 -c "
 import json
+from datetime import datetime, timezone
 state = {
+    'schema_version': 2,
+    'template_version': '${TEMPLATE_VERSION}',
+    'activated_at': datetime.now(timezone.utc).isoformat(),
     'overlays': ${_overlays_json},
     'created_links': ${_links_json},
     'created_files': ${_files_json},
@@ -346,6 +351,11 @@ with open('${TARGET}/.claude/.activated-overlays.json', 'w') as f:
     f.write('\n')
 "
 info "  Saved: .claude/.activated-overlays.json"
+
+# Register in .known-projects
+KNOWN="$SCRIPT_DIR/.known-projects"
+touch "$KNOWN"
+grep -qxF "$TARGET" "$KNOWN" 2>/dev/null || echo "$TARGET" >> "$KNOWN"
 
 # --- Install external components ---
 

@@ -198,6 +198,10 @@ print('')
 read_state() {
     local target="$1"
     local state_file="$target/.claude/.activated-overlays.json"
+    local template_version
+    template_version=$(cat "$REPO_DIR/VERSION" 2>/dev/null || echo "unknown")
+    # Migrate state file to current schema before reading
+    python3 "$SCRIPTS_DIR/migrate-state.py" "$state_file" --template-version "$template_version" 2>/dev/null || true
     if [ -f "$state_file" ]; then
         cat "$state_file"
     else

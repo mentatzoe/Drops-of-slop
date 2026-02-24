@@ -18,6 +18,8 @@ TARBALL_URL="https://github.com/$REPO/archive/refs/heads/$REF.tar.gz"
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
+CYAN='\033[0;36m'
+BOLD='\033[1m'
 NC='\033[0m'
 
 info()  { printf "${GREEN}>>>${NC} %s\n" "$1"; }
@@ -48,23 +50,95 @@ tar -xzf "$TMPDIR_PATH/archive.tar.gz" -C "$TMPDIR_PATH" \
 EXTRACTED="$(ls -d "$TMPDIR_PATH"/Drops-of-slop-*/claude-templates 2>/dev/null)" \
   || error "Could not find claude-templates/ in the archive. Is the ref '$REF' correct?"
 
-# --- Install ---
+# --- Detect existing installation (update mode) ---
+
+UPDATE_MODE=false
+OLD_VERSION="unknown"
+NEW_VERSION=$(cat "$EXTRACTED/VERSION" 2>/dev/null || echo "unknown")
 
 if [ -d "$INSTALL_DIR" ]; then
-  warn "Existing installation found at $INSTALL_DIR — replacing."
-  rm -rf "$INSTALL_DIR"
+    # Parse old version from .installed-version or VERSION file
+    if [ -f "$INSTALL_DIR/.installed-version" ]; then
+        OLD_VERSION=$(grep '^version=' "$INSTALL_DIR/.installed-version" 2>/dev/null | cut -d= -f2 || echo "")
+    fi
+    if [ -z "$OLD_VERSION" ] || [ "$OLD_VERSION" = "unknown" ]; then
+        OLD_VERSION=$(cat "$INSTALL_DIR/VERSION" 2>/dev/null || echo "1.0.0")
+    fi
+
+    # Check if already up to date
+    if [ "$OLD_VERSION" = "$NEW_VERSION" ] && [ "$REF" = "$(grep '^ref=' "$INSTALL_DIR/.installed-version" 2>/dev/null | cut -d= -f2 || echo "")" ]; then
+        info "Already up to date (version $NEW_VERSION, ref $REF)."
+        exit 0
+    fi
+
+    UPDATE_MODE=true
+    echo ""
+    printf "  ${BOLD}Updating from %s to %s${NC}\n" "$OLD_VERSION" "$NEW_VERSION"
+    echo ""
 fi
 
-mkdir -p "$(dirname "$INSTALL_DIR")"
-mv "$EXTRACTED" "$INSTALL_DIR"
+# --- Show changelog (update mode only) ---
+
+if $UPDATE_MODE; then
+    CHANGELOG="$EXTRACTED/CHANGELOG.md"
+    if [ -f "$CHANGELOG" ]; then
+        # Extract entries between old and new version
+        CHANGES=$(python3 -c "
+import sys
+
+old_ver = '$OLD_VERSION'
+new_ver = '$NEW_VERSION'
+capture = False
+lines = []
+
+with open('$CHANGELOG') as f:
+    for line in f:
+        if line.startswith('## ['):
+            ver = line.split('[')[1].split(']')[0]
+            if ver == old_ver:
+                break
+            capture = True
+        if capture:
+            lines.append(line.rstrip())
+
+if lines:
+    print('\n'.join(lines))
+" 2>/dev/null || true)
+
+        if [ -n "$CHANGES" ]; then
+            echo -e "  ${CYAN}What's new:${NC}"
+            echo "$CHANGES" | sed 's/^/    /'
+            echo ""
+        fi
+    fi
+fi
+
+# --- Install (atomic swap for updates, simple move for fresh) ---
+
+if $UPDATE_MODE; then
+    # Preserve .known-projects registry
+    if [ -f "$INSTALL_DIR/.known-projects" ]; then
+        cp "$INSTALL_DIR/.known-projects" "$EXTRACTED/.known-projects"
+    fi
+
+    # Atomic swap: old -> backup, new -> install dir, remove backup
+    mv "$INSTALL_DIR" "$INSTALL_DIR.bak"
+    mv "$EXTRACTED" "$INSTALL_DIR"
+    rm -rf "$INSTALL_DIR.bak"
+else
+    mkdir -p "$(dirname "$INSTALL_DIR")"
+    mv "$EXTRACTED" "$INSTALL_DIR"
+fi
 
 # --- Make scripts executable ---
 
 find "$INSTALL_DIR" -name '*.sh' -exec chmod +x {} +
+find "$INSTALL_DIR" -name '*.py' -exec chmod +x {} +
 
 # --- Write version marker ---
 
 cat > "$INSTALL_DIR/.installed-version" <<EOF
+version=$NEW_VERSION
 ref=$REF
 installed=$(date -u '+%Y-%m-%dT%H:%M:%SZ' 2>/dev/null || date -u '+%Y-%m-%dT%H:%M:%SZ')
 repo=$REPO
@@ -74,19 +148,34 @@ EOF
 
 echo ""
 echo "============================================"
-info "claude-templates installed successfully!"
-echo ""
-echo "  Location: $INSTALL_DIR"
-echo "  Ref:      $REF"
-echo ""
-echo "  Activate overlays on a project:"
-echo "    $INSTALL_DIR/activate.sh ~/my-project web-dev quality-assurance"
-echo ""
-echo "  Use a pre-built composition:"
-echo "    $INSTALL_DIR/activate.sh ~/my-project --composition fullstack-web"
-echo ""
-echo "  Migrate an existing project:"
-echo "    $INSTALL_DIR/migrate.sh ~/my-project"
+
+if $UPDATE_MODE; then
+    info "claude-templates updated successfully!"
+    echo ""
+    echo "  Location: $INSTALL_DIR"
+    echo "  Version:  $OLD_VERSION -> $NEW_VERSION"
+    echo "  Ref:      $REF"
+    echo ""
+    echo "  To refresh activated projects:"
+    echo "    $INSTALL_DIR/refresh.sh ~/your-project"
+    echo "    $INSTALL_DIR/refresh.sh --all"
+else
+    info "claude-templates installed successfully!"
+    echo ""
+    echo "  Location: $INSTALL_DIR"
+    echo "  Version:  $NEW_VERSION"
+    echo "  Ref:      $REF"
+    echo ""
+    echo "  Activate overlays on a project:"
+    echo "    $INSTALL_DIR/activate.sh ~/my-project web-dev quality-assurance"
+    echo ""
+    echo "  Use a pre-built composition:"
+    echo "    $INSTALL_DIR/activate.sh ~/my-project --composition fullstack-web"
+    echo ""
+    echo "  Migrate an existing project:"
+    echo "    $INSTALL_DIR/migrate.sh ~/my-project"
+fi
+
 echo ""
 echo "  Optional shell alias (add to ~/.bashrc or ~/.zshrc):"
 echo "    alias claude-templates='$INSTALL_DIR/activate.sh'"
