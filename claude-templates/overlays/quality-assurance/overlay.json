@@ -3,5 +3,17 @@
   "description": "Testing standards, test plan generation, and QA automation workflows",
   "conflicts": [],
   "depends": [],
-  "mcp_servers": []
+  "mcp_servers": [],
+  "recommended_external": {
+    "agents": [
+      "development-team/test-generator",
+      "development-tools/qa-expert"
+    ],
+    "commands": [
+      "testing/generate-tests"
+    ],
+    "hooks": [
+      "testing/test-runner"
+    ]
+  }
 }

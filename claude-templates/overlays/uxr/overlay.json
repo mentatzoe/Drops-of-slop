@@ -3,5 +3,14 @@
   "description": "User experience research — study design, data analysis, and insight synthesis",
   "conflicts": [],
   "depends": [],
-  "mcp_servers": []
+  "mcp_servers": [],
+  "recommended_external": {
+    "agents": [
+      "business-marketing/ux-researcher",
+      "development-team/ui-ux-designer"
+    ],
+    "skills": [
+      "creative-design/accessibility-auditor"
+    ]
+  }
 }

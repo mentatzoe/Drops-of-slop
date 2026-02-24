@@ -3,5 +3,17 @@
   "description": "General research with web search, citation management, and structured analysis",
   "conflicts": [],
   "depends": [],
-  "mcp_servers": ["brave-search", "exa"]
+  "mcp_servers": ["brave-search", "exa"],
+  "recommended_external": {
+    "agents": [
+      "deep-research-team/academic-researcher",
+      "data-ai/task-researcher"
+    ],
+    "skills": [
+      "ai-research/agent-evaluation"
+    ],
+    "mcps": [
+      "deepresearch/mcp-server-nia"
+    ]
+  }
 }

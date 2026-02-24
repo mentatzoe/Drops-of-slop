@@ -3,5 +3,18 @@
   "description": "AI/ML research with experiment tracking, paper analysis, and model evaluation",
   "conflicts": [],
   "depends": [],
-  "mcp_servers": ["huggingface", "arxiv", "sequential-thinking"]
+  "mcp_servers": ["huggingface", "arxiv", "sequential-thinking"],
+  "recommended_external": {
+    "agents": [
+      "ai-specialists/llm-architect",
+      "ai-specialists/model-evaluator"
+    ],
+    "skills": [
+      "ai-research/agent-evaluation",
+      "ai-research/qa-test-planner"
+    ],
+    "mcps": [
+      "deepresearch/mcp-server-nia"
+    ]
+  }
 }

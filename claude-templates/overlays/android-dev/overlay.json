@@ -3,5 +3,17 @@
   "description": "Android development with Kotlin, Jetpack Compose, and Material Design 3",
   "conflicts": ["web-dev"],
   "depends": [],
-  "mcp_servers": ["mobile-mcp", "android-mcp-server"]
+  "mcp_servers": ["mobile-mcp", "android-mcp-server"],
+  "recommended_external": {
+    "agents": [
+      "development-team/mobile-developer",
+      "development-team/mobile-app-developer"
+    ],
+    "commands": [
+      "testing/generate-tests"
+    ],
+    "skills": [
+      "creative-design/mobile-design"
+    ]
+  }
 }

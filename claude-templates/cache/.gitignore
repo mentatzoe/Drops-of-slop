@@ -1,0 +1,4 @@
+# Cached external component downloads — not tracked in git.
+# The cache/ directory itself is tracked; contents are ignored.
+*
+!.gitignore

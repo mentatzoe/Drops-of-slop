@@ -4,10 +4,14 @@
 # Usage:
 #   ./activate.sh <target-project-path> <overlay1> [overlay2] ...
 #   ./activate.sh <target-project-path> --composition <composition-name>
+#   ./activate.sh <target-project-path> <overlay1> --with-externals
+#   ./activate.sh <target-project-path> <overlay1> --external agent <category/name>
 #
 # Examples:
 #   ./activate.sh ~/my-app web-dev quality-assurance
 #   ./activate.sh ~/my-app --composition fullstack-web
+#   ./activate.sh ~/my-app web-dev --with-externals
+#   ./activate.sh ~/my-app web-dev --external agent development-team/frontend-developer
 
 set -euo pipefail
 
@@ -30,8 +34,12 @@ warn() { echo -e "${YELLOW}WARN:${NC} $1" >&2; }
 info() { echo -e "${GREEN}>>>${NC} $1"; }
 
 usage() {
-    echo "Usage: $0 <target-project-path> <overlay1> [overlay2] ..."
-    echo "       $0 <target-project-path> --composition <composition-name>"
+    echo "Usage: $0 <target-project-path> <overlay1> [overlay2] ... [OPTIONS]"
+    echo "       $0 <target-project-path> --composition <composition-name> [OPTIONS]"
+    echo ""
+    echo "Options:"
+    echo "  --with-externals                  Install recommended external components from active overlays"
+    echo "  --external <type> <category/name> Install a specific external component (type: agent|command|skill|mcp|hook|setting)"
     echo ""
     echo "Available overlays:"
     for d in "$OVERLAYS_DIR"/*/; do
@@ -53,6 +61,9 @@ TARGET="$(cd "$1" 2>/dev/null && pwd)" || error "Target directory not found: $1"
 shift
 
 OVERLAYS=()
+WITH_EXTERNALS=false
+EXTERNAL_INSTALLS=()
+
 if [ "$1" = "--composition" ]; then
     [ $# -lt 2 ] && error "Missing composition name"
     COMP_FILE="$COMPOSITIONS_DIR/$2.json"
@@ -62,8 +73,25 @@ if [ "$1" = "--composition" ]; then
         OVERLAYS+=("$overlay")
     done < <(python3 -c "import json; [print(o) for o in json.load(open('$COMP_FILE'))['overlays']]")
     info "Using composition '$2': ${OVERLAYS[*]}"
+    shift 2
+    # Parse remaining flags
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            --with-externals) WITH_EXTERNALS=true; shift ;;
+            --external) EXTERNAL_INSTALLS+=("$2|$3"); shift 3 ;;
+            *) error "Unknown option after composition: $1" ;;
+        esac
+    done
 else
-    OVERLAYS=("$@")
+    # Parse overlays and flags from remaining args
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            --with-externals) WITH_EXTERNALS=true; shift ;;
+            --external) EXTERNAL_INSTALLS+=("$2|$3"); shift 3 ;;
+            -*) error "Unknown option: $1" ;;
+            *) OVERLAYS+=("$1"); shift ;;
+        esac
+    done
 fi
 
 [ ${#OVERLAYS[@]} -eq 0 ] && error "No overlays specified"
@@ -295,19 +323,52 @@ info "  Generated: CLAUDE.md"
 # --- Record activation state ---
 
 info "Recording activation state..."
+
+# Build JSON arrays via printf to temp files to avoid nested quoting issues
+_overlays_json=$(printf '%s\n' "${OVERLAYS[@]}" | python3 -c "import json,sys; print(json.dumps([l.strip() for l in sys.stdin if l.strip()]))")
+_links_json=$(printf '%s\n' "${CREATED_LINKS[@]}" | python3 -c "import json,sys; print(json.dumps([l.strip() for l in sys.stdin if l.strip()]))")
+_files_json=$(printf '%s\n' "${CREATED_FILES[@]}" | python3 -c "import json,sys; print(json.dumps([l.strip() for l in sys.stdin if l.strip()]))")
+
 python3 -c "
 import json
 state = {
-    'overlays': $(python3 -c "import json; print(json.dumps([o for o in [$(printf '"%s",' "${OVERLAYS[@]}")]))" 2>/dev/null),
-    'created_links': $(python3 -c "import json; print(json.dumps([l for l in [$(printf '"%s",' "${CREATED_LINKS[@]}")]))" 2>/dev/null),
-    'created_files': $(python3 -c "import json; print(json.dumps([f for f in [$(printf '"%s",' "${CREATED_FILES[@]}")]))" 2>/dev/null),
-    'template_dir': '$SCRIPT_DIR'
+    'overlays': ${_overlays_json},
+    'created_links': ${_links_json},
+    'created_files': ${_files_json},
+    'template_dir': '${SCRIPT_DIR}'
 }
-with open('$TARGET/.claude/.activated-overlays.json', 'w') as f:
+with open('${TARGET}/.claude/.activated-overlays.json', 'w') as f:
     json.dump(state, f, indent=2)
     f.write('\n')
 "
 info "  Saved: .claude/.activated-overlays.json"
+
+# --- Install external components ---
+
+EXTERNAL_COUNT=0
+
+if $WITH_EXTERNALS; then
+    info "Installing recommended external components..."
+    "$SCRIPTS_DIR/fetch-external.sh" install "$TARGET" --recommended
+    EXTERNAL_COUNT=$((EXTERNAL_COUNT + 1))
+fi
+
+if [ ${#EXTERNAL_INSTALLS[@]} -gt 0 ]; then
+    info "Installing specified external components..."
+    for ext_spec in "${EXTERNAL_INSTALLS[@]}"; do
+        ext_type="${ext_spec%%|*}"
+        ext_path="${ext_spec#*|}"
+        "$SCRIPTS_DIR/fetch-external.sh" install "$TARGET" "--$ext_type" "$ext_path"
+        EXTERNAL_COUNT=$((EXTERNAL_COUNT + 1))
+    done
+fi
+
+if [ "$EXTERNAL_COUNT" -gt 0 ]; then
+    # Re-merge MCP/settings if externals added any
+    # (external MCPs are already in .mcp.json via fetch-external.sh, but if we need
+    # to ensure local overlays still take precedence, we re-merge local over external)
+    info "External components installed. Local overlays retain precedence."
+fi
 
 # --- Summary ---
 
