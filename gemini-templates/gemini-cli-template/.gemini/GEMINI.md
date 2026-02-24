@@ -18,4 +18,4 @@ Never use the native `save_memory`. All persistent context must be written to ex
 ## Writing Guidelines
 Whenever you write human prose (READMEs, configuration documentation, user walkthroughs, UI text, or commit messages), you MUST apply the rules from `@[.gemini/skills/writing-clearly-and-concisely/SKILL.md]`.
 Focus specifically on omitting needless words (conciseness) and rejecting AI-style puffery. Do not assume any positive or glowing attribution unless strictly cited in source material.
-Critically, do not over-format text: never use bolded inline headings for simple numbered or bulleted list items.
+Critically, do not over-format text: avoid using bolded inline headings for simple numbered or bulleted list items.
