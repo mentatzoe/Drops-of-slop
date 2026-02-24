@@ -4,3 +4,5 @@ node_modules
 dist
 build
 \n# Transient Orchestration State\n.gemini/active-plan.md
+*.sqlite-wal
+*.sqlite-shm
