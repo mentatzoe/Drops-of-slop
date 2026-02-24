@@ -23,7 +23,7 @@ for arg in "$@"; do
 done
 
 # 1. Detect existing setup and ask for Migration
-if [ -d ".gemini" ] || [ -f "GEMINI.md" ]; then
+if [ -d ".gemini" ] || [ -d ".agents" ] || [ -f "GEMINI.md" ]; then
     echo "⚠️  Existing Gemini configuration detected."
     if [ "$DRY_RUN" = true ]; then
         echo "💡 [Dry-Run] Would prompt for migration."
@@ -35,6 +35,7 @@ if [ -d ".gemini" ] || [ -f "GEMINI.md" ]; then
             TIMESTAMP=$(date +%s)
             echo "📦 Creating backups..."
             [ -d ".gemini" ] && cp -R .gemini ".gemini.backup_${TIMESTAMP}"
+            [ -d ".agents" ] && cp -R .agents ".agents.backup_${TIMESTAMP}"
             [ -f "GEMINI.md" ] && cp GEMINI.md "GEMINI.backup_${TIMESTAMP}.md"
         else
             echo "Aborting initialization to protect existing files."
@@ -59,9 +60,9 @@ echo "📂 Applying configuration..."
 if [ "$is_migration" = true ]; then
     if [ "$DRY_RUN" = true ]; then
         echo "📋 [Dry-Run] Migration Report:"
-        echo "  - Would backup legacy files to .gemini.backup_<timestamp>"
-        echo "  - Would inject the following new Template Agents:"
-        ls -1 "$TMP_DIR/$TEMPLATE_PATH/.gemini/agents" | sed 's/^/      /'
+        echo "  - Would backup legacy files to .gemini.backup_<timestamp> and .agents.backup_<timestamp>"
+        echo "  - Would inject the following new Template Agents into root .agents/:"
+        ls -1 "$TMP_DIR/$TEMPLATE_PATH/.agents" | sed 's/^/      /'
         echo "  - Would overwrite root GEMINI.md with strictly JIT router rules"
         
         # Dry-run the jq merge preview
@@ -79,8 +80,9 @@ if [ "$is_migration" = true ]; then
         exit 0
     fi
 
-    # Migration Merge Logic A: Copy template agents directly in (preserving existing legacy agents implicitly)
-    cp -R "$TMP_DIR/$TEMPLATE_PATH/.gemini/agents/"* .gemini/agents/ 2>/dev/null || true
+    # Migration Merge Logic A: Copy template agents directly in to root .agents/ (preserving existing legacy agents implicitly)
+    mkdir -p .agents
+    cp -R "$TMP_DIR/$TEMPLATE_PATH/.agents/"* .agents/ 2>/dev/null || true
     
     # Migration Merge Logic B: Deep merge settings.json (Install hooks without deleting custom MCPs)
     if [ -f ".gemini/settings.json" ] && command -v jq &> /dev/null; then
@@ -100,7 +102,7 @@ if [ "$is_migration" = true ]; then
 else
     if [ "$DRY_RUN" = true ]; then
         echo "📋 [Dry-Run] Clean Install Report:"
-        echo "  - Would install Gold Standard configuration to .gemini/"
+        echo "  - Would install Gold Standard configuration to .gemini/ and .agents/"
         echo "🔍 Dry-run complete. Run without --dry-run to apply these changes."
         rm -rf "$TMP_DIR"
         exit 0
@@ -108,6 +110,7 @@ else
 
     # Clean Install
     cp -R "$TMP_DIR/$TEMPLATE_PATH/.gemini" .
+    cp -R "$TMP_DIR/$TEMPLATE_PATH/.agents" .
     cp "$TMP_DIR/$TEMPLATE_PATH/.gemini/GEMINI.md" .gemini/
 fi
 
