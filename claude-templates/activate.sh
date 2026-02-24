@@ -40,6 +40,7 @@ usage() {
     echo "Options:"
     echo "  --with-externals                  Install recommended external components from active overlays"
     echo "  --external <type> <category/name> Install a specific external component (type: agent|command|skill|mcp|hook|setting)"
+    echo "  --browse                          Launch interactive component browser after activation"
     echo ""
     echo "Available overlays:"
     for d in "$OVERLAYS_DIR"/*/; do
@@ -63,6 +64,7 @@ shift
 OVERLAYS=()
 WITH_EXTERNALS=false
 EXTERNAL_INSTALLS=()
+BROWSE_AFTER=false
 
 if [ "$1" = "--composition" ]; then
     [ $# -lt 2 ] && error "Missing composition name"
@@ -79,6 +81,7 @@ if [ "$1" = "--composition" ]; then
         case "$1" in
             --with-externals) WITH_EXTERNALS=true; shift ;;
             --external) EXTERNAL_INSTALLS+=("$2|$3"); shift 3 ;;
+            --browse) BROWSE_AFTER=true; shift ;;
             *) error "Unknown option after composition: $1" ;;
         esac
     done
@@ -88,6 +91,7 @@ else
         case "$1" in
             --with-externals) WITH_EXTERNALS=true; shift ;;
             --external) EXTERNAL_INSTALLS+=("$2|$3"); shift 3 ;;
+            --browse) BROWSE_AFTER=true; shift ;;
             -*) error "Unknown option: $1" ;;
             *) OVERLAYS+=("$1"); shift ;;
         esac
@@ -384,3 +388,8 @@ echo "  Agents:   $(ls "$TARGET/.claude/agents/" 2>/dev/null | wc -l) files"
 echo "============================================"
 echo ""
 echo "To deactivate: $(dirname "$0")/deactivate.sh $TARGET"
+
+if $BROWSE_AFTER; then
+    info "Launching component browser..."
+    exec "$SCRIPTS_DIR/browse-catalog.sh" "$TARGET"
+fi
