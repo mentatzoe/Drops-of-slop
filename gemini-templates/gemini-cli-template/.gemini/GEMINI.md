@@ -14,3 +14,7 @@ Analyze the user's request and IMMEDIATELY delegate the task to the appropriate 
 
 ## Memory Constraint
 Never use the native `save_memory`. All persistent context must be written to external databases via `mcp:engram` or `mcp:hmem`.
+
+## Writing Guidelines
+Whenever you write human prose (READMEs, configuration documentation, user walkthroughs, UI text, or commit messages), you MUST apply the rules from `@[.gemini/skills/writing-clearly-and-concisely/SKILL.md]`.
+Focus specifically on omitting needless words (conciseness) and rejecting AI-style puffery. Do not assume any positive or glowing attribution unless strictly cited in source material.
