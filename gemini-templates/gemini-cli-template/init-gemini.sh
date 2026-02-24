@@ -69,7 +69,9 @@ fi
 
 cp -R "$TMP_DIR/$TEMPLATE_PATH/docs" .
 cp "$TMP_DIR/$TEMPLATE_PATH/.geminiignore" .
-cp "$TMP_DIR/$TEMPLATE_PATH/README.md" ./GEMINI_README.md
+if [ -f "$TMP_DIR/$TEMPLATE_PATH/README.md" ]; then
+    cp "$TMP_DIR/$TEMPLATE_PATH/README.md" ./GEMINI_README.md
+fi
 
 # 4. Clean up
 rm -rf "$TMP_DIR"
@@ -80,8 +82,12 @@ echo ""
 echo "✅ Initialization & Migration Complete!"
 
 if [ "$is_migration" = true ]; then
-    echo "🚨 MIGRATION REQUIRED: To finalize context mapping for your existing agents, run:"
-    echo "   gemini chat --agent migrator 'Analyze my backups at .gemini.backup_${TIMESTAMP}/ and help me integrate my legacy instructions.'"
+    echo "🚨 MIGRATION CONTEXT REQUIRED: Please review your legacy configuration backed up at .gemini.backup_${TIMESTAMP}/"
+    echo "   Add any custom legacy instructions into the appropriate overlay agent, or define a new one."
+    echo "   The JIT Router (GEMINI.md) is now strictly locked to the Gold Standard templates. Automatic installation complete."
+    echo ""
+    echo "🚀 To trigger the new autonomous workflow, run:"
+    echo "   gemini chat 'I want to build a new feature. Please trigger the Architect.'"
 else
     echo "🚀 To trigger the new autonomous workflow, run:"
     echo "   gemini chat 'I want to build a new feature. Please trigger the Architect.'"
