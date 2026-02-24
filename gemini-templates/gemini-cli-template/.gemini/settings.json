@@ -12,20 +12,119 @@
   "hooks": {
     "BeforeTool": [
       ".gemini/hooks/block-secrets.sh"
+    ],
+    "AfterTool": [
+      ".gemini/hooks/audit-logger.sh"
     ]
   },
   "mcpServers": {
-    "engram": {
+    "github": {
       "command": "npx",
-      "args": ["engram-mcp"]
+      "args": [
+        "github-mcp"
+      ]
     },
-    "obsidian": {
+    "vercel": {
       "command": "npx",
-      "args": ["obsidian-mcp"]
+      "args": [
+        "vercel-mcp"
+      ]
     },
     "figma": {
       "command": "npx",
-      "args": ["figma-mcp"]
+      "args": [
+        "figma-mcp"
+      ]
+    },
+    "adb": {
+      "command": "npx",
+      "args": [
+        "adb-mcp"
+      ]
+    },
+    "gradle": {
+      "command": "npx",
+      "args": [
+        "gradle-mcp"
+      ]
+    },
+    "unity": {
+      "command": "npx",
+      "args": [
+        "unity-mcp"
+      ]
+    },
+    "asset": {
+      "command": "npx",
+      "args": [
+        "asset-mcp"
+      ]
+    },
+    "huggingface": {
+      "command": "npx",
+      "args": [
+        "hf-mcp"
+      ]
+    },
+    "arxiv": {
+      "command": "npx",
+      "args": [
+        "arxiv-mcp"
+      ]
+    },
+    "dovetail": {
+      "command": "npx",
+      "args": [
+        "dovetail-mcp"
+      ]
+    },
+    "playwright": {
+      "command": "npx",
+      "args": [
+        "playwright-mcp"
+      ]
+    },
+    "jira": {
+      "command": "npx",
+      "args": [
+        "jira-mcp"
+      ]
+    },
+    "browserbase": {
+      "command": "npx",
+      "args": [
+        "browserbase-mcp"
+      ]
+    },
+    "tavily": {
+      "command": "npx",
+      "args": [
+        "tavily-mcp"
+      ]
+    },
+    "obsidian": {
+      "command": "npx",
+      "args": [
+        "obsidian-mcp"
+      ]
+    },
+    "engram": {
+      "command": "npx",
+      "args": [
+        "engram-mcp"
+      ]
+    },
+    "lore": {
+      "command": "npx",
+      "args": [
+        "lore-mcp"
+      ]
+    },
+    "confluence": {
+      "command": "npx",
+      "args": [
+        "confluence-mcp"
+      ]
     }
   }
 }

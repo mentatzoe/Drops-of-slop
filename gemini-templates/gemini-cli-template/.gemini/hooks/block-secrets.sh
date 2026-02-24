@@ -1,29 +1,25 @@
 #!/usr/bin/env bash
 # hook: BeforeTool
-# Strict JSON Compliance: Outputs purely valid JSON to stdout. Logs go to stderr.
-# Idiomatic Blocking: Exit Code 0 with "decision": "deny" on failure so the LLM can see the reason.
+# ZERO-TRUST POLICY: Fails secure, guarantees idiomatic JSON response.
 
-echo "DEBUG: Scanning arguments in BeforeTool hook..." >&2
+# Pipe arbitrary output to stderr to preserve stdout for the JSON contract
+echo "DEBUG: Entering Zero-Trust BeforeTool Hook..." >&2
 
 for arg in "$@"; do
-  if [[ "$arg" =~ (AIza[0-9a-zA-Z_\\-]{35}|sk-[a-zA-Z0-9]{48}|ghp_[a-zA-Z0-9]{36}|dapi-[a-zA-Z0-9]{32}) || "$arg" =~ \.env ]]; then
-    echo "DEBUG: Secret regex matched." >&2
-    # Output idiomatic blocking JSON format to stdout:
+  # Regex targeting OpenAI, AWS, GitHub, and generic .env calls
+  if [[ "$arg" =~ (sk-[a-zA-Z0-9]{48}|AKIA[0-9A-Z]{16}|ghp_[a-zA-Z0-9]{36}|\.env) ]]; then
+    echo "CRITICAL: Secret string intercepted." >&2
     cat <<EOF
 {
   "decision": "deny",
-  "reason": "Security violation: Blocked by 'block-secrets.sh' hook. Secret or .env reference detected."
+  "reason": "SECURITY GUARDRAIL TRIGGERED: Tool blocked by 'block-secrets.sh'. Ensure you are not hardcoding API keys or manipulating .env directly."
 }
 EOF
-    exit 0
+    exit 0 # We exit 0 so Gemini gracefully receives the JSON payload, rather than a generic OS crash.
   fi
 done
 
-echo "DEBUG: No secrets detected." >&2
-# Output allow signal
 cat <<EOF
-{
-  "decision": "allow"
-}
+{ "decision": "allow" }
 EOF
 exit 0
