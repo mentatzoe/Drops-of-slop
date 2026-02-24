@@ -81,6 +81,10 @@ if $NO_COLOR; then
 fi
 
 STATE_FILE="$TARGET/.claude/.activated-overlays.json"
+TEMPLATE_VERSION=$(cat "$REPO_DIR/VERSION" 2>/dev/null || echo "unknown")
+
+# Migrate state file to current schema before reading
+python3 "$SCRIPTS_DIR/migrate-state.py" "$STATE_FILE" --template-version "$TEMPLATE_VERSION" 2>/dev/null || true
 
 # Detect fzf
 HAS_FZF=false

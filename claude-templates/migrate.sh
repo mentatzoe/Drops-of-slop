@@ -29,6 +29,7 @@ AGENTS_DIR="$SCRIPT_DIR/agents"
 COMPOSITIONS_DIR="$SCRIPT_DIR/compositions"
 SCRIPTS_DIR="$SCRIPT_DIR/scripts"
 MANIFEST="$SCRIPT_DIR/manifest.json"
+TEMPLATE_VERSION=$(cat "$SCRIPT_DIR/VERSION" 2>/dev/null || echo "unknown")
 
 error() { echo -e "${RED}ERROR:${NC} $1" >&2; exit 1; }
 warn() { echo -e "${YELLOW}WARN:${NC} $1" >&2; }
@@ -807,6 +808,9 @@ preserved_custom = [p for p in preserved_custom if p]
 
 # Write .activated-overlays.json (for deactivate.sh compatibility)
 state = {
+    "schema_version": 2,
+    "template_version": "$TEMPLATE_VERSION",
+    "activated_at": datetime.now(timezone.utc).isoformat(),
     "overlays": overlays,
     "created_links": created_links,
     "created_files": created_files,
@@ -836,6 +840,11 @@ with open("$TARGET/.claude/.migration-state.json", "w") as f:
 PYEOF
     info "  Saved: .claude/.activated-overlays.json"
     info "  Saved: .claude/.migration-state.json"
+
+    # Register in .known-projects
+    KNOWN="$SCRIPT_DIR/.known-projects"
+    touch "$KNOWN"
+    grep -qxF "$TARGET" "$KNOWN" 2>/dev/null || echo "$TARGET" >> "$KNOWN"
 fi
 
 # ============================================================

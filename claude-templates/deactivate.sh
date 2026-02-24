@@ -15,6 +15,10 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m'
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SCRIPTS_DIR="$SCRIPT_DIR/scripts"
+TEMPLATE_VERSION=$(cat "$SCRIPT_DIR/VERSION" 2>/dev/null || echo "unknown")
+
 error() { echo -e "${RED}ERROR:${NC} $1" >&2; exit 1; }
 warn() { echo -e "${YELLOW}WARN:${NC} $1" >&2; }
 info() { echo -e "${GREEN}>>>${NC} $1"; }
@@ -25,6 +29,9 @@ TARGET="$(cd "$1" 2>/dev/null && pwd)" || error "Target directory not found: $1"
 STATE_FILE="$TARGET/.claude/.activated-overlays.json"
 
 [ -f "$STATE_FILE" ] || error "No activation state found at $STATE_FILE. Was this project activated?"
+
+# Migrate state file to current schema before reading
+python3 "$SCRIPTS_DIR/migrate-state.py" "$STATE_FILE" --template-version "$TEMPLATE_VERSION" 2>/dev/null || true
 
 # Check for migration state
 IS_MIGRATED=0
