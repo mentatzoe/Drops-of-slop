@@ -5,17 +5,20 @@ A template repository for managing Claude Code configurations across diverse pro
 ## Quick Start
 
 ```bash
-# Migrate an existing project (auto-detects overlays, preserves custom config)
-./migrate.sh ~/my-project
+# Install
+curl -fsSL https://raw.githubusercontent.com/mentatzoe/Drops-of-slop/main/claude-templates/install.sh | bash
 
-# Or activate overlays on a clean project
-./activate.sh ~/my-project web-dev quality-assurance
+# Activate overlays on a project
+~/.claude-templates/activate.sh ~/my-project web-dev quality-assurance
 
 # Or use a pre-built composition
-./activate.sh ~/my-project --composition fullstack-web
+~/.claude-templates/activate.sh ~/my-project --composition fullstack-web
 
-# Deactivate when done
-./deactivate.sh ~/my-project
+# Migrate an existing project
+~/.claude-templates/migrate.sh ~/my-project
+
+# Deactivate
+~/.claude-templates/deactivate.sh ~/my-project
 ```
 
 ## Architecture
