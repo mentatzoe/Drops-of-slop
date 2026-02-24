@@ -13,11 +13,16 @@ To install the template:
    chmod +x init-gemini.sh
    ./init-gemini.sh
    ```
-3. Launch the CLI:
+3. Configure your environment variables:
+   ```bash
+   cp .gemini/.env.example .env
+   # Edit .env with your specific API keys
+   ```
+4. Launch the CLI:
    ```bash
    gemini chat
    ```
-4. Trigger the Architect:
+5. Trigger the Architect:
    ```text
    "I want to build a new feature. Please trigger the Architect."
    ```
@@ -54,11 +59,34 @@ The template enforces three steps for building new features:
 2. `@planner.md` reads the specification and the codebase. Appends an implementation checklist to `.gemini/active-plan.md` and pauses for your approval.
 3. `@implementer.md` writes the code and completes the checklist.
 
-## Memory Protocol
+## Memory Protocol (Git-Synced SQLite)
 
-The template routes persistent memory operations exclusively through the `engram` graph database MCP. Agents log decisions and preferences automatically using the `engram:mem_save` tool.
+The template routes persistent memory operations exclusively through `@pepk/mcp-memory-sqlite`. This is a drop-in replacement for the official Knowledge Graph that runs on SQLite with Write-Ahead Logging (WAL), allowing multi-agent concurrency.
+
+**Syncing AI Memory to Git:**
+If you want to version control the AI's mind alongside your codebase branches:
+1. The `.sqlite-wal` and `.sqlite-shm` temporary files are strictly ignored.
+2. Before you `git commit`, run `.gemini/hooks/sync-memory.sh`. This flushes the WAL and safely checkpoints the database.
+3. You can safely commit `.gemini/memory.sqlite` to track the Graph state.
 
 Short-term orchestration relies on the `.gemini/active-plan.md` file. Git ignores this file.
+
+### Expanding Capabilities (Dynamic Integration)
+
+The template follows a Zero-Trust architecture. Only essential local tools (like SQLite memory) are active by default. Expand your environment using the MCP Wizard:
+
+1.  Codebase Detection: Run `sh .gemini/commands/detect-project.sh` to see recommended tools.
+2.  The Wizard: Run `sh .gemini/commands/mcp-wizard.sh` to install extension from the catalog.
+3.  Global Preferences: Customize tools in `.gemini/preferences.json`. The agents prioritize these recommendations (e.g., Obsidian over Confluence).
+
+### JIT Capability Loading
+Agents (like `@catalog-manager`) are preference-aware. If a task requires a missing tool, they:
+- Search `external-catalog.json`.
+- Propose a configuration patch to `.gemini/settings.json`.
+- Wait for manual approval before installation.
+
+---
+You should then add any required API keys (e.g., `JIRA_API_TOKEN`) to your `.gemini/.env` file.
 
 ## Security
 

@@ -6,8 +6,8 @@
 echo "DEBUG: Entering Zero-Trust BeforeTool Hook..." >&2
 
 for arg in "$@"; do
-  # Regex targeting OpenAI, AWS, GitHub, and generic .env calls
-  if [[ "$arg" =~ (sk-[a-zA-Z0-9]{48}|AKIA[0-9A-Z]{16}|ghp_[a-zA-Z0-9]{36}|\.env) ]]; then
+  # Regex targeting OpenAI, AWS, GitHub, and generic .env calls (excluding .env.example)
+  if [[ "$arg" =~ (sk-[a-zA-Z0-9]{48}|AKIA[0-9A-Z]{16}|ghp_[a-zA-Z0-9]{36}) ]] || ( [[ "$arg" =~ \.env ]] && [[ ! "$arg" =~ \.env\.example ]] ); then
     echo "CRITICAL: Secret string intercepted." >&2
     cat <<EOF
 {

@@ -1,0 +1,33 @@
+name: Robustness Tests
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  bash-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup BATS
+        uses: migalabs/setup-bats@v1.2.0
+
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq curl git
+
+      - name: Run init-gemini.sh tests
+        run: |
+          cd gemini-templates/gemini-cli-template
+          chmod +x tests/mocks/curl
+          bats tests/init-gemini.bats
+
+      - name: Run update-gemini.sh tests
+        run: |
+          cd gemini-templates/gemini-cli-template
+          chmod +x tests/mocks/curl
+          bats tests/update-gemini.bats

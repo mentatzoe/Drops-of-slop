@@ -26,3 +26,9 @@ If the user selects `[3] Proceed to planning` or explicitly tells you to proceed
 2. Synthesize all gathered requirements into a final, structured Markdown specification.
 3. Use the `write_file` tool to save this specification to `.gemini/active-plan.md`.
 4. Inform the user that the handoff is complete.
+
+## 3. Documentation Quality Control
+Before finalizing the `.gemini/active-plan.md` or any README updates:
+1. Run `sh .gemini/commands/writing-audit.sh <filename>`.
+2. Apply the `writing-clearly-and-concisely` skill to evaluate the prose.
+3. Use professional judgment to depuff and simplify. Use formatting (bolding) only where it increases legibility for complex information, and avoid it in simple lists.

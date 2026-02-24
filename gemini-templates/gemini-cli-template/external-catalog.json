@@ -8,7 +8,10 @@
         "name": "browser-assistant",
         "category": "development-tools",
         "path": ".agents/browser-assistant.md",
-        "description": "A specialized agent for web scraping, testing, and automation using the Standalone Browser MCP."
+        "description": "A specialized agent for web scraping, testing, and automation using the Standalone Browser MCP.",
+        "recommended_tools": [
+          "standalone-browser"
+        ]
       },
       {
         "name": "catalog-manager",
@@ -704,7 +707,12 @@
         "name": "frontend-developer",
         "category": "development-team",
         "path": "development-team/frontend-developer",
-        "github_path": "cli-tool/components/agents/development-team/frontend-developer.md"
+        "github_path": "cli-tool/components/agents/development-team/frontend-developer.md",
+        "recommended_tools": [
+          "github",
+          "vercel",
+          "figma"
+        ]
       },
       {
         "name": "fullstack-developer",

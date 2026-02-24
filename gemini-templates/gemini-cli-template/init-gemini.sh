@@ -119,11 +119,19 @@ cp "$TMP_DIR/$TEMPLATE_PATH/.geminiignore" .
 if [ -f "$TMP_DIR/$TEMPLATE_PATH/README.md" ]; then
     cp "$TMP_DIR/$TEMPLATE_PATH/README.md" ./GEMINI_README.md
 fi
+cp "$TMP_DIR/$TEMPLATE_PATH/.gemini/.env.example" .gemini/.env.example 2>/dev/null || true
 
-# 4. Clean up
+# 4. Codebase Detection (New Gold Standard Step)
+if [ -f ".gemini/commands/detect-project.sh" ]; then
+    chmod +x .gemini/commands/detect-project.sh
+    sh .gemini/commands/detect-project.sh
+fi
+
+# 5. Clean up
 rm -rf "$TMP_DIR"
 echo "🔧 Setting hook permissions..."
 chmod +x .gemini/hooks/*.sh
+[ -d ".gemini/commands" ] && chmod +x .gemini/commands/*.sh
 
 echo ""
 echo "✅ Initialization & Migration Complete!"
@@ -133,9 +141,11 @@ if [ "$is_migration" = true ]; then
     echo "   Add any custom legacy instructions into the appropriate overlay agent, or define a new one."
     echo "   The JIT Router (GEMINI.md) is now strictly locked to the Gold Standard templates. Automatic installation complete."
     echo ""
+    echo "🔑 Don't forget to configure your API keys! Copy .gemini/.env.example to .env and edit."
     echo "🚀 To trigger the new autonomous workflow, run:"
     echo "   gemini chat 'I want to build a new feature. Please trigger the Architect.'"
 else
+    echo "🔑 Don't forget to configure your API keys! Copy .gemini/.env.example to .env and edit."
     echo "🚀 To trigger the new autonomous workflow, run:"
     echo "   gemini chat 'I want to build a new feature. Please trigger the Architect.'"
 fi

@@ -24,4 +24,10 @@ You MUST format each actionable item as a visual Markdown checklist:
 ```
 
 ## 3. Awaiting Approval
-Once the checklist is appended to `.gemini/active-plan.md`, inform the user and PAUSE. Await explicit human approval before any further actions are taken.
+3. Once the checklist is appended to `.gemini/active-plan.md`, inform the user.
+
+## 4. Documentation Quality Control
+Before finalizing the plan or any human-facing documentation:
+1. Run `sh .gemini/commands/writing-audit.sh <filename>`.
+2. Apply the `writing-clearly-and-concisely` skill to the output.
+3. Use professional judgment to depuff and simplify. Format judiciously—prioritize clarity and force over decorative bolding.

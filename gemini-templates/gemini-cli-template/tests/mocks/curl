@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# Mock curl for BATS tests
+echo "Mock curl executed with args: $@" >> "$BATS_RUN_TMPDIR/curl.log"
+# If it's the tar pipeline, we can output a valid empty tar
+if [[ "$*" == *"-fsSL"* ]]; then
+  tar cvf - -T /dev/null
+  exit 0
+fi
+exit 0
