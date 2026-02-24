@@ -29,12 +29,12 @@ if [ -f ".gemini/commands/detect-project.sh" ]; then
 fi
 
 echo "Available Categories:"
-CATEGORIES=$(jq -r '.components.mcp_servers | map(.category) | unique | .[]' "$CATALOG")
+CATEGORIES=$(jq -r '.components."mcp-servers" | map(.type) | unique | .[]' "$CATALOG")
 select CATEGORY in $CATEGORIES "Exit"; do
     if [ "$CATEGORY" == "Exit" ]; then break; fi
     if [ -n "$CATEGORY" ]; then
         echo "--- $CATEGORY Servers ---"
-        SERVERS=$(jq -r --arg cat "$CATEGORY" '.components.mcp_servers[] | select(.category == $cat) | .name' "$CATALOG")
+        SERVERS=$(jq -r --arg type "$CATEGORY" '.components."mcp-servers"[] | select(.type == $type) | .name' "$CATALOG")
         
         select SERVER in $SERVERS "Back"; do
             if [ "$SERVER" == "Back" ]; then break; fi
@@ -42,7 +42,7 @@ select CATEGORY in $CATEGORIES "Exit"; do
                 echo "📦 Installing $SERVER..."
                 
                 # Extract server config
-                SERVER_DATA=$(jq -r --arg name "$SERVER" '.components.mcp_servers[] | select(.name == $name)' "$CATALOG")
+                SERVER_DATA=$(jq -r --arg name "$SERVER" '.components."mcp-servers"[] | select(.name == $name)' "$CATALOG")
                 COMMAND=$(echo "$SERVER_DATA" | jq -r '.command // "npx"')
                 ARGS=$(echo "$SERVER_DATA" | jq -r '.args // [] | join(",")')
                 PKG=$(echo "$SERVER_DATA" | jq -r '.package_name // empty')
