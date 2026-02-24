@@ -19,6 +19,7 @@ Migrating an existing setup requires handling JSON configuration independently f
 
 ### Phase 1: Automated JSON & Hooks Integration (Via Bash)
 - **Configuration (`settings.json`):** The script reads the user's existing `settings.json` to identify custom MCP servers, auto-approval thresholds, or tools payload. Using a native `jq` deep merge, it injects the template's mandatory `AfterTool`/`BeforeTool` hooks and standard MCPs *without* deleting or overwriting the user's custom server blocks.
+- **External Catalog (`external-catalog.json`):** Drops the new Gold Standard catalog definition into the root allowing JIT dynamic routing of remote agents via the newly added Catalog Manager.
 - **Legacy Agents (`.gemini/agents/`):** The bash script copies the new Gold Standard agents directly into the user's agent directory alongside their legacy files seamlessly.
 
 ### Phase 2: Manual Semantic Context Mapping (Guided via CLI)
