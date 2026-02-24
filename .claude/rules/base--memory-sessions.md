@@ -14,6 +14,14 @@ description: Rolling summary of recent work sessions
 
 <!-- Entries below, newest first -->
 
+## 2026-02-24: Improve memory capture — expand stop hook and backfill missed data
+- Expanded `stop-learning-capture.sh` with two new pattern categories: PREFERENCE_PATTERNS and DECISION_PATTERNS (each with targeted reason messages pointing to the correct memory file)
+- Backfilled `memory-profile.md` (GitHub handle, environment, project context), `memory-preferences.md` (terse command style, autonomous execution trust, GitHub monitoring), `memory-decisions.md` (runtime test-secret assembly)
+- Strengthened CLAUDE.md auto-update section with concrete examples of how to recognize triggers mid-session
+- Added 7 new bats tests for preference/decision pattern matching and priority ordering
+- Key files: `claude-templates/base/hooks/stop-learning-capture.sh`, `.claude/hooks/stop-learning-capture.sh`, `claude-templates/base/CLAUDE.md`, `CLAUDE.md`, `claude-templates/tests/hooks.bats`, memory files in `.claude/rules/`
+- Branch: `fix/template-audit-fixes`
+
 ## 2026-02-24: Template audit — fix drift, portability, and add test suite
 - Implemented 7-item audit of `claude-templates/` (excluding gemini-cli-template)
 - Critical: Fixed `pre-commit-safety.sh` template drift — ported JSON protocol from active copy back to template source

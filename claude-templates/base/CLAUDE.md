@@ -51,7 +51,7 @@ Rules in `.claude/rules/` are auto-loaded based on file paths. Follow them.
 
 ## Auto-Update Memory (MANDATORY)
 
-Update memory files AS YOU GO, not at the end. When you learn something new, update immediately.
+**Capture as you go, not at the end.** The stop hook is a safety net, not the primary mechanism.
 
 | Trigger | Action |
 |---------|--------|
@@ -59,6 +59,12 @@ Update memory files AS YOU GO, not at the end. When you learn something new, upd
 | User states a preference | → Update `memory-preferences.md` |
 | A decision is made | → Update `memory-decisions.md` with date |
 | Completing substantive work | → Add to `memory-sessions.md` |
+
+**How to recognize triggers during work:**
+- A terse command style ("commit this", "just do it") → that's a communication preference
+- A GitHub handle visible in a PR URL → that's a profile fact
+- The user accepts a plan without pushback → that's a workflow preference (trusts autonomous execution)
+- You chose approach A over approach B → that's a decision, log it
 
 Skip: Quick factual questions, trivial tasks with no new info.
 
