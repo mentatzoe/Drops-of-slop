@@ -2,6 +2,7 @@
 
 # Gemini CLI Template Initializer
 # Downloads and installs the Gemini CLI Gold Standard Template into the current directory.
+# Features a safe, LLM-driven migration path for existing setups.
 
 set -e
 
@@ -10,14 +11,25 @@ TEMPLATE_PATH="gemini-templates/gemini-cli-template"
 
 echo "💎 Initializing Gemini CLI Workspace..."
 
-# 1. Check if .gemini already exists
-if [ -d ".gemini" ]; then
-    echo "⚠️  A .gemini directory already exists in this project."
-    echo "Please back it up or remove it before initializing the template."
-    exit 1
+is_migration=false
+
+# 1. Detect existing setup and ask for Migration
+if [ -d ".gemini" ] || [ -f "GEMINI.md" ]; then
+    echo "⚠️  Existing Gemini configuration detected."
+    read -p "Do you want to safely migrate your existing setup to the Gold Standard architecture? [y/N] " confirm
+    if [[ "$confirm" =~ ^[Yy]$ ]]; then
+        is_migration=true
+        TIMESTAMP=$(date +%s)
+        echo "📦 Creating backups..."
+        [ -d ".gemini" ] && cp -R .gemini ".gemini.backup_${TIMESTAMP}"
+        [ -f "GEMINI.md" ] && cp GEMINI.md "GEMINI.backup_${TIMESTAMP}.md"
+    else
+        echo "Aborting initialization to protect existing files."
+        exit 1
+    fi
 fi
 
-# 2. Clone the template using sparse-checkout to grab ONLY the template directory
+# 2. Fetch template via sparse-checkout
 echo "📥 Fetching template from $REPO_URL..."
 TMP_DIR=$(mktemp -d)
 
@@ -27,26 +39,50 @@ git sparse-checkout set "$TEMPLATE_PATH" > /dev/null 2>&1
 git checkout main > /dev/null 2>&1
 cd - > /dev/null
 
-# 3. Copy the template contents to the current directory
+# 3. Apply Configuration
 echo "📂 Applying configuration..."
-cp -R "$TMP_DIR/$TEMPLATE_PATH/.gemini" .
+
+if [ "$is_migration" = true ]; then
+    # Migration Merge Logic A: Copy template agents directly in (preserving existing legacy agents implicitly)
+    cp -R "$TMP_DIR/$TEMPLATE_PATH/.gemini/agents/"* .gemini/agents/ 2>/dev/null || true
+    
+    # Migration Merge Logic B: Deep merge settings.json (Install hooks without deleting custom MCPs)
+    if [ -f ".gemini/settings.json" ] && command -v jq &> /dev/null; then
+        echo "🧩 Merging settings.json via jq..."
+        jq -s '.[0] * .[1]' .gemini/settings.json "$TMP_DIR/$TEMPLATE_PATH/.gemini/settings.json" > .gemini/settings_merged.json
+        mv .gemini/settings_merged.json .gemini/settings.json
+    else
+        echo "⚠️  jq not found or settings missing. Overwriting settings.json with defaults. (Check .gemini.backup_${TIMESTAMP}/settings.json for your old MCPs)"
+        cp -R "$TMP_DIR/$TEMPLATE_PATH/.gemini/settings.json" .gemini/
+    fi
+
+    # Migration Merge C: Overwrite root router and hooks
+    cp -R "$TMP_DIR/$TEMPLATE_PATH/.gemini/hooks" .gemini/
+    cp -R "$TMP_DIR/$TEMPLATE_PATH/.gemini/policies" .gemini/
+    cp -R "$TMP_DIR/$TEMPLATE_PATH/.gemini/rules" .gemini/
+    cp "$TMP_DIR/$TEMPLATE_PATH/.gemini/GEMINI.md" .gemini/
+else
+    # Clean Install
+    cp -R "$TMP_DIR/$TEMPLATE_PATH/.gemini" .
+    cp "$TMP_DIR/$TEMPLATE_PATH/.gemini/GEMINI.md" .gemini/
+fi
+
 cp -R "$TMP_DIR/$TEMPLATE_PATH/docs" .
 cp "$TMP_DIR/$TEMPLATE_PATH/.geminiignore" .
 cp "$TMP_DIR/$TEMPLATE_PATH/README.md" ./GEMINI_README.md
 
-# 4. Clean up temporary directory
+# 4. Clean up
 rm -rf "$TMP_DIR"
-
-# 5. Fix executable permissions for hooks
 echo "🔧 Setting hook permissions..."
 chmod +x .gemini/hooks/*.sh
 
 echo ""
-echo "✅ Initialization Complete!"
-echo "   - .gemini/ configured."
-echo "   - docs/ established."
-echo "   - .geminiignore applied."
-echo "   - Template documentation saved as GEMINI_README.md."
-echo ""
-echo "🚀 To trigger the autonomous workflow, run:"
-echo "   gemini chat 'I want to build a new feature. Please trigger the Architect.'"
+echo "✅ Initialization & Migration Complete!"
+
+if [ "$is_migration" = true ]; then
+    echo "🚨 MIGRATION REQUIRED: To finalize context mapping for your existing agents, run:"
+    echo "   gemini chat --agent migrator 'Analyze my backups at .gemini.backup_${TIMESTAMP}/ and help me integrate my legacy instructions.'"
+else
+    echo "🚀 To trigger the new autonomous workflow, run:"
+    echo "   gemini chat 'I want to build a new feature. Please trigger the Architect.'"
+fi
