@@ -10,6 +10,7 @@ Analyze the user's request and IMMEDIATELY delegate the task to the appropriate 
 - If the task is Web Dev, Android Dev, or Game Design -> Invoke `@../.agents/web-developer.md`, `@../.agents/android-engineer.md`, or `@../.agents/game-designer.md`.
 - If the task is AI Research, QA, or Broad Research -> Invoke `@../.agents/ai-researcher.md`, `@../.agents/qa-automation.md`, or `@../.agents/deep-researcher.md`.
 - If the task is UXR, PKM, Worldbuilding, Obsidian, or Wiki Mgmt -> Invoke `@../.agents/uxr-analyst.md`, `@../.agents/pkm-curator.md`, `@../.agents/worldbuilder.md`, `@../.agents/obsidian-architect.md`, or `@../.agents/wiki-manager.md`.
+- **If the task requires a capability, domain, or agent not currently installed in `/.agents/`** -> Invoke `@../.agents/catalog-manager.md` to search the external catalog and provide the capability.
 
 ## Memory Constraint
 Never use the native `save_memory`. All persistent context must be written to external databases via `mcp:engram` or `mcp:hmem`.

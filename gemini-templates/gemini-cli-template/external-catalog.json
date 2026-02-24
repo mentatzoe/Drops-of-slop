@@ -1,0 +1,40 @@
+{
+  "version": "1.0.0",
+  "name": "gemini-external-catalog",
+  "description": "Standardized registry for Gemini CLI capabilities, agents, and MCP servers.",
+  "components": {
+    "agents": [
+      {
+        "name": "browser-assistant",
+        "category": "development-tools",
+        "path": ".agents/browser-assistant.md",
+        "description": "A specialized agent for web scraping, testing, and automation using the Standalone Browser MCP."
+      },
+      {
+        "name": "catalog-manager",
+        "category": "system",
+        "path": ".agents/catalog-manager.md",
+        "description": "A JIT agent to handle finding and installing items from the external catalog safely."
+      }
+    ],
+    "mcp-servers": [
+      {
+        "name": "engram",
+        "type": "memory",
+        "description": "Graph database for preserving persistent context."
+      },
+      {
+        "name": "hmem",
+        "type": "memory",
+        "description": "Hierarchical memory server for context management."
+      },
+      {
+        "name": "puppeteer",
+        "type": "browser",
+        "description": "Standalone Browser MCP for web interactions."
+      }
+    ],
+    "skills": [],
+    "plugins": []
+  }
+}
