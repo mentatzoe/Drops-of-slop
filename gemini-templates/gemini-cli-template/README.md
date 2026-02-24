@@ -6,18 +6,18 @@ This template configures the Gemini CLI to use Just-In-Time (JIT) context routin
 
 To install the template:
 
-1. **Install Prerequisites**: Install Node.js, `npx`, and `jq`.
-2. **Initialize Workspace**: Run the installer in your project root:
+1. Install Node.js, `npx`, and `jq`.
+2. Run the installer in your project root:
    ```bash
    curl -fsSL https://raw.githubusercontent.com/mentatzoe/Drops-of-slop/main/gemini-templates/gemini-cli-template/init-gemini.sh -o init-gemini.sh
    chmod +x init-gemini.sh
    ./init-gemini.sh
    ```
-3. **Start Gemini**: Launch the CLI:
+3. Launch the CLI:
    ```bash
    gemini chat
    ```
-4. **Request a Feature**: Trigger the Architect:
+4. Trigger the Architect:
    ```text
    "I want to build a new feature. Please trigger the Architect."
    ```
@@ -32,9 +32,9 @@ If the requested capability is missing, the router calls the **Catalog Manager**
 
 If you already use a custom `.gemini/` directory, `init-gemini.sh` migrates your settings safely:
 
-1. **Backup:** The script copies your existing setup to a backup folder.
-2. **Merge Settings:** It uses `jq` to merge your `settings.json` with the new template, keeping your custom MCP servers intact.
-3. **Apply Template:** It installs the new `GEMINI.md` router and required hooks. You must manually copy your old custom instructions into the new overlay agents.
+1. The script copies your existing setup to a backup folder.
+2. It uses `jq` to merge your `settings.json` with the new template, keeping your custom MCP servers intact.
+3. It installs the new `GEMINI.md` router and required hooks. You must manually copy your old custom instructions into the new overlay agents.
 
 ### Receiving Upstream Updates
 
@@ -50,9 +50,9 @@ chmod +x update-gemini.sh
 
 The template enforces three steps for building new features:
 
-1. **Architect (`@architect.md`):** Interviews you to define requirements. Writes a formal specification to `.gemini/active-plan.md`.
-2. **Planner (`@planner.md`):** Reads the specification and the codebase. Appends an implementation checklist to `.gemini/active-plan.md` and pauses for your approval.
-3. **Implementer (`@implementer.md`):** Writes the code and completes the checklist.
+1. `@architect.md` interviews you to define requirements. Writes a formal specification to `.gemini/active-plan.md`.
+2. `@planner.md` reads the specification and the codebase. Appends an implementation checklist to `.gemini/active-plan.md` and pauses for your approval.
+3. `@implementer.md` writes the code and completes the checklist.
 
 ## Memory Protocol
 
@@ -62,6 +62,6 @@ Short-term orchestration relies on the `.gemini/active-plan.md` file. Git ignore
 
 ## Security
 
-- **Before execution:** `.gemini/hooks/block-secrets.sh` blocks exposed API keys from reaching the terminal.
-- **After execution:** `.gemini/hooks/audit-logger.sh` records all commands executed by Gemini.
-- **Guardrails:** `.gemini/policies/guardrails.toml` restricts dangerous commands (like `rm -rf`) and forces agents to explain their reasoning before running shell commands.
+- `.gemini/hooks/block-secrets.sh` blocks exposed API keys from reaching the terminal.
+- `.gemini/hooks/audit-logger.sh` records all commands executed by Gemini.
+- `.gemini/policies/guardrails.toml` restricts dangerous commands (like `rm -rf`) and forces agents to explain their reasoning before running shell commands.
