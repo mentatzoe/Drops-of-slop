@@ -170,10 +170,41 @@ fi
 
 # --- Step 4: Validate overlays still exist ---
 
+VALID_OVERLAYS=()
 for overlay in "${OVERLAYS[@]}"; do
     if [ ! -d "$OVERLAYS_DIR/$overlay" ]; then
-        warn "Overlay '$overlay' no longer exists in templates. Skipping its rules."
+        warn "Overlay '$overlay' no longer exists in templates. Removing its symlinks."
+        # Clean up stale symlinks for this removed overlay
+        for stale in "$TARGET/.claude/rules/${overlay}--"*; do
+            [ -L "$stale" ] || continue
+            if [ "$DRY_RUN" -eq 1 ]; then
+                dry "remove stale symlink: ${stale#$TARGET/}"
+            else
+                rm "$stale"
+                info "  Removed stale: ${stale#$TARGET/}"
+            fi
+        done
+    else
+        VALID_OVERLAYS+=("$overlay")
     fi
+done
+OVERLAYS=("${VALID_OVERLAYS[@]}")
+
+# Also clean any broken symlinks in .claude/ (e.g. skills, commands, agents)
+info "Cleaning broken symlinks..."
+for dir in "$TARGET/.claude/rules" "$TARGET/.claude/skills" "$TARGET/.claude/commands" "$TARGET/.claude/agents"; do
+    [ -d "$dir" ] || continue
+    for link in "$dir"/*; do
+        [ -L "$link" ] || continue
+        if [ ! -e "$link" ]; then
+            if [ "$DRY_RUN" -eq 1 ]; then
+                dry "remove broken symlink: ${link#$TARGET/}"
+            else
+                rm "$link"
+                info "  Removed broken: ${link#$TARGET/}"
+            fi
+        fi
+    done
 done
 
 # --- Step 5: Read old created_links from state ---
@@ -397,6 +428,11 @@ for overlay in "${OVERLAYS[@]}"; do
     SETTINGS="$OVERLAYS_DIR/$overlay/settings.json"
     [ -f "$SETTINGS" ] && SETTINGS_FILES+=("$SETTINGS")
 done
+
+if [ -f "$TARGET/.claude/settings.local.json" ]; then
+    SETTINGS_FILES+=("$TARGET/.claude/settings.local.json")
+    info "  Including: settings.local.json (local overrides, highest precedence)"
+fi
 
 if [ "$DRY_RUN" -eq 1 ]; then
     dry "merge ${#SETTINGS_FILES[@]} settings file(s) -> .claude/settings.json"

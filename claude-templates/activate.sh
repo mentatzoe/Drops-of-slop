@@ -136,17 +136,30 @@ for overlay in "${OVERLAYS[@]}"; do
     done
 done
 
-# --- Resolve dependencies ---
+# --- Resolve dependencies (with cycle detection) ---
 
 info "Resolving dependencies..."
 RESOLVED_OVERLAYS=("${OVERLAYS[@]}")
+declare -A _DEP_VISITING  # cycle detection: currently in-progress resolutions
 
-for overlay in "${OVERLAYS[@]}"; do
-    OVERLAY_JSON="$OVERLAYS_DIR/$overlay/overlay.json"
+resolve_deps() {
+    local overlay="$1"
+    # Cycle detection
+    if [ "${_DEP_VISITING[$overlay]:-}" = "1" ]; then
+        error "Circular dependency detected involving '$overlay'. Check overlay.json depends fields."
+    fi
+    _DEP_VISITING["$overlay"]=1
+
+    local OVERLAY_JSON="$OVERLAYS_DIR/$overlay/overlay.json"
     if [ -f "$OVERLAY_JSON" ]; then
         while IFS= read -r dep; do
-            # Check if dependency is already in the list
-            FOUND=0
+            [ -z "$dep" ] && continue
+            # Check for cycle BEFORE checking if already resolved
+            if [ "${_DEP_VISITING[$dep]:-}" = "1" ]; then
+                error "Circular dependency detected: '$overlay' -> '$dep'. Check overlay.json depends fields."
+            fi
+            # Check if dependency is already resolved
+            local FOUND=0
             for existing in "${RESOLVED_OVERLAYS[@]}"; do
                 [ "$existing" = "$dep" ] && FOUND=1 && break
             done
@@ -154,6 +167,8 @@ for overlay in "${OVERLAYS[@]}"; do
                 [ -d "$OVERLAYS_DIR/$dep" ] || error "Dependency '$dep' (required by '$overlay') not found"
                 info "Auto-adding dependency: $dep (required by $overlay)"
                 RESOLVED_OVERLAYS+=("$dep")
+                # Recursively resolve transitive dependencies
+                resolve_deps "$dep"
             fi
         done < <(python3 -c "
 import json
@@ -162,6 +177,12 @@ for d in data.get('depends', []):
     print(d)
 " 2>/dev/null)
     fi
+
+    unset '_DEP_VISITING[$overlay]'
+}
+
+for overlay in "${OVERLAYS[@]}"; do
+    resolve_deps "$overlay"
 done
 
 OVERLAYS=("${RESOLVED_OVERLAYS[@]}")
@@ -303,6 +324,26 @@ if [ ${#MCP_FILES[@]} -gt 0 ]; then
     python3 "$SCRIPTS_DIR/merge-configs.py" --type mcp --output "$TARGET/.mcp.json" "${MCP_FILES[@]}"
     CREATED_FILES+=(".mcp.json")
     info "  Generated: .mcp.json"
+
+    # Warn about unset env vars referenced in MCP config
+    MISSING_VARS=$(python3 -c "
+import json, os, re
+with open('$TARGET/.mcp.json') as f:
+    content = f.read()
+# Find all \${VAR_NAME} placeholders
+refs = set(re.findall(r'\\\$\{([A-Za-z_][A-Za-z0-9_]*)\}', content))
+missing = [v for v in sorted(refs) if not os.environ.get(v)]
+for v in missing:
+    print(v)
+" 2>/dev/null || true)
+    if [ -n "$MISSING_VARS" ]; then
+        warn "MCP config references unset environment variables:"
+        while IFS= read -r var; do
+            [ -z "$var" ] && continue
+            warn "  \$$var"
+        done <<< "$MISSING_VARS"
+        warn "MCP servers using these vars will fail at runtime. Set them in your shell or .env file."
+    fi
 fi
 
 # --- Deep-merge settings ---
@@ -313,6 +354,11 @@ for overlay in "${OVERLAYS[@]}"; do
     SETTINGS="$OVERLAYS_DIR/$overlay/settings.json"
     [ -f "$SETTINGS" ] && SETTINGS_FILES+=("$SETTINGS")
 done
+
+if [ -f "$TARGET/.claude/settings.local.json" ]; then
+    SETTINGS_FILES+=("$TARGET/.claude/settings.local.json")
+    info "  Including: settings.local.json (local overrides, highest precedence)"
+fi
 
 python3 "$SCRIPTS_DIR/merge-configs.py" --type settings --output "$TARGET/.claude/settings.json" "${SETTINGS_FILES[@]}"
 CREATED_FILES+=(".claude/settings.json")
