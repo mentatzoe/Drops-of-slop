@@ -1,0 +1,1 @@
+/workspaces/Drops-of-slop/claude-templates/base/rules/memory-management.md
