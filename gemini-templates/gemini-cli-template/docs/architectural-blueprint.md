@@ -11,6 +11,20 @@ This blueprint utilizes **Just-In-Time (JIT) Context Routing** and **Persistent 
 The repository strictly targets the native Gemini CLI structure (`.gemini/`). It implements physical isolation between configurations, behaviors, and memory.
 
 ```text
+```text
+.agents/                         # Specialized Persona Subagents (Jetski/Composer compatible)
+    ├── web-developer.md         # Use Case 1: Web Development
+    ├── android-engineer.md      # Use Case 2: Android Development
+    ├── game-designer.md         # Use Case 3: Videogame Development
+    ├── ai-researcher.md         # Use Case 4: AI Research
+    ├── uxr-analyst.md           # Use Case 5: UXR (User Experience Research)
+    ├── qa-automation.md         # Use Case 6: Quality Assurance
+    ├── deep-researcher.md       # Use Case 7: Broad Research
+    ├── pkm-curator.md           # Use Case 8: PKM
+    ├── worldbuilder.md          # Use Case 9: Worldbuilding
+    ├── wiki-manager.md          # Use Case 10: Wiki Management
+    └── obsidian-architect.md    # Use Case 11: Obsidian Internals
+
 .gemini/
 ├── GEMINI.md                    # Root JIT Router (< 50 lines)
 ├── settings.json                # Global settings, default ApprovalMode, Sandbox selection
@@ -25,18 +39,6 @@ The repository strictly targets the native Gemini CLI structure (`.gemini/`). It
 │   ├── android-build/
 │   ├── qa-regression/           
 │   └── wiki-sync/
-└── agents/                      # Specialized Persona Subagents (Isolated Contexts)
-    ├── web-developer.md         # Use Case 1: Web Development
-    ├── android-engineer.md      # Use Case 2: Android Development
-    ├── game-designer.md         # Use Case 3: Videogame Development
-    ├── ai-researcher.md         # Use Case 4: AI Research
-    ├── uxr-analyst.md           # Use Case 5: UXR (User Experience Research)
-    ├── qa-automation.md         # Use Case 6: Quality Assurance
-    ├── deep-researcher.md       # Use Case 7: Broad Research
-    ├── pkm-curator.md           # Use Case 8: PKM
-    ├── worldbuilder.md          # Use Case 9: Worldbuilding
-    ├── wiki-manager.md          # Use Case 10: Wiki Management
-    └── obsidian-architect.md    # Use Case 11: Obsidian Internals
 ```
 
 ## 2. Secure MCP Integration Mapping
@@ -110,9 +112,9 @@ You are the Global Router. Do NOT solve complex domain problems directly.
 Analyze the user's request and IMMEDIATELY delegate the task to the appropriate specialized subagent by triggering them or instructing the user to switch profiles.
 
 ## Routing Logic
-- If the task is Web Dev, Android Dev, or Game Design -> Invoke `@agents/web-developer.md`, `@agents/android-engineer.md`, or `@agents/game-designer.md`.
-- If the task is AI Research, QA, or Broad Research -> Invoke `@agents/ai-researcher.md`, `@agents/qa-automation.md`, or `@agents/deep-researcher.md`.
-- If the task is UXR, PKM, Worldbuilding, Obsidian, or Wiki Mgmt -> Invoke `@agents/uxr-analyst.md`, `@agents/pkm-curator.md`, `@agents/worldbuilder.md`, `@agents/obsidian-architect.md`, or `@agents/wiki-manager.md`.
+- If the task is Web Dev, Android Dev, or Game Design -> Invoke `@../.agents/web-developer.md`, `@../.agents/android-engineer.md`, or `@../.agents/game-designer.md`.
+- If the task is AI Research, QA, or Broad Research -> Invoke `@../.agents/ai-researcher.md`, `@../.agents/qa-automation.md`, or `@../.agents/deep-researcher.md`.
+- If the task is UXR, PKM, Worldbuilding, Obsidian, or Wiki Mgmt -> Invoke `@../.agents/uxr-analyst.md`, `@../.agents/pkm-curator.md`, `@../.agents/worldbuilder.md`, `@../.agents/obsidian-architect.md`, or `@../.agents/wiki-manager.md`.
 
 ## Memory Constraint
 Never use the native `save_memory`. All persistent context must be written to external databases via `mcp:engram` or `mcp:hmem`.
@@ -124,7 +126,7 @@ Never use the native `save_memory`. All persistent context must be written to ex
 
 This subagent explicitly utilizes the MCF "Glass Box" concept via a meta-commentary policy, and securely scopes tools to precisely what UXR tasks mandate.
 
-### File: `.gemini/agents/uxr-analyst.md`
+### File: `.agents/uxr-analyst.md`
 ```yaml
 ---
 name: UXRAnalyst

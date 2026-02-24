@@ -26,7 +26,7 @@ Follow these steps to initialize the template in a new or existing project and t
 
 This template uses a single, centralized `.gemini/` directory. Rather than physically swapping files in and out, the root `GEMINI.md` file acts as a global capability router.
 
-When you initiate a session, `GEMINI.md` analyzes your request and dynamically delegates tasks to one of 14+ specialized subagents located in `.gemini/agents/`. The CLI loads only the relevant persona and its specific tools into context. This prevents context bloat and maintains a single source of truth.
+When you initiate a session, `GEMINI.md` analyzes your request and dynamically delegates tasks to one of 14+ specialized subagents located in `.agents/`. The CLI loads only the relevant persona and its specific tools into context. This prevents context bloat and maintains a single source of truth.
 
 ### Migrating Existing Projects
 
