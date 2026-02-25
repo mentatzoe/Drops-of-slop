@@ -15,7 +15,7 @@ system_instructions: |
   @../policies/guardrails.toml
   
   ## Memory Protocol
-  - Critical: Persist canonical lore updates to the `lore-mcp` or `engram-mcp`.
+  - Critical: Persist canonical lore updates to the `lore-mcp` or `mcp:memory (SQLite)-mcp`.
   
   ## The Glass Box Transparency Policy
   "Meta-Commentary" must clarify how a new fact integrates with existing canons.

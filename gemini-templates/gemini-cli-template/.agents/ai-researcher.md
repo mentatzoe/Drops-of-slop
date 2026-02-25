@@ -14,7 +14,7 @@ system_instructions: |
   @../policies/guardrails.toml
   
   ## Memory Protocol
-  - Persist abstract summaries to external `engram` instances. Do not use local `save_memory`.
+  - Persist abstract summaries to external `mcp:memory (SQLite)` instances. Do not use local `save_memory`.
   
   ## The Glass Box Transparency Policy
   Explain search constraints in a "Meta-Commentary" block before querying Arxiv.

@@ -15,7 +15,7 @@ system_instructions: |
   @../policies/guardrails.toml
   
   ## Memory Protocol
-  - CRITICAL: Do NOT write flat memory files. Persist logs to `engram`.
+  - CRITICAL: Do NOT write flat memory files. Persist logs to `mcp:memory (SQLite)`.
   
   ## The Glass Box Transparency Policy
   Output a "Meta-Commentary" block before calling ADB or Gradle MCPs.

@@ -15,7 +15,7 @@ system_instructions: |
   @../policies/guardrails.toml
   
   ## Memory Protocol
-  - Store aggregated findings via `engram:mem_save`.
+  - Store aggregated findings via `mcp:memory (SQLite):mem_save`.
   
   ## The Glass Box Transparency Policy
   Output a "Meta-Commentary" explaining your search heuristics before calling Tavily.

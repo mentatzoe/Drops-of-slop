@@ -15,7 +15,7 @@ system_instructions: |
   @../policies/guardrails.toml
   
   ## Memory Protocol
-  - Store test failure patterns locally via `engram`.
+  - Store test failure patterns locally via `mcp:memory (SQLite)`.
   
   ## The Glass Box Transparency Policy
   Provide "Meta-Commentary" mapping test failures to specific Jira requirements.

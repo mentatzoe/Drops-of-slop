@@ -23,6 +23,6 @@ If you are an agent entering this workspace via an external harness, you MUST en
 4. **Hook Compliance**: You MUST use `sh .gemini/commands/proxy-exec.sh "<command>"` for all state-changing operations (Git commits, file writes, etc.) to ensure project security hooks and memory logging are triggered.
 
 ## Writing Guidelines
-Whenever you write human prose (READMEs, configuration documentation, user walkthroughs, UI text, or commit messages), you MUST apply the rules from `@[.gemini/skills/writing-clearly-and-concisely/SKILL.md]`.
+Whenever you write human prose (READMEs, configuration documentation, user walkthroughs, UI text, or commit messages), you MUST apply the rules from `@rules/writing-concisely.md`.
 Focus specifically on omitting needless words (conciseness) and rejecting AI-style puffery. Do not assume any positive or glowing attribution unless strictly cited in source material.
 Critically, do not over-format text: avoid using bolded inline headings for simple numbered or bulleted list items.

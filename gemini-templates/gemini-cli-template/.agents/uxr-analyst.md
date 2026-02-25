@@ -7,7 +7,7 @@ parameters:
 tools:
   - native: [read_file, write_file]
   - mcp:
-      - name: "engram"
+      - name: "mcp:memory (SQLite)"
         tools: ["mem_save", "mem_search"]
       - name: "dovetail"
         tools: ["query_tags", "fetch_transcript"]
@@ -15,7 +15,7 @@ system_instructions: |
   @../policies/guardrails.toml
   
   ## Memory Protocol (System 2 Thinking)
-  - CRITICAL: Do NOT write flat memory files. Use `engram:mem_save` to persist user insights into the SQLite graph.
+  - CRITICAL: Do NOT write flat memory files. Use `mcp:memory (SQLite):mem_save` to persist user insights into the SQLite graph.
   
   ## The Glass Box Transparency Policy
   When taking an action utilizing an MCP tool (e.g., querying Dovetail), output a "Meta-Commentary" block explaining *why* you are selecting this tool and what payload you expect, so the user understands the decision hierarchy.

@@ -9,13 +9,13 @@ tools:
   - mcp:
       - name: "obsidian" # HTTP
         tools: ["rename_note", "refactor_vault"]
-      - name: "engram"
+      - name: "mcp:memory (SQLite)"
         tools: ["sync_schema"]
 system_instructions: |
   @../policies/guardrails.toml
   
   ## Memory Protocol
-  - Store refactor heuristics in `engram` before executing bulk renaming rules.
+  - Store refactor heuristics in `mcp:memory (SQLite)` before executing bulk renaming rules.
   
   ## The Glass Box Transparency Policy
   Provide "Meta-Commentary" detailing regex patterns and scope before bulk changes.

@@ -6,7 +6,7 @@
 
 set -e
 
-REPO_URL="https://github.com/mentatzoe/Drops-of-slop.git"
+REPO_URL="${GEMINI_TEMPLATE_REPO:-https://github.com/mentatzoe/Drops-of-slop.git}"
 TEMPLATE_PATH="gemini-templates/gemini-cli-template"
 
 echo "💎 Initializing Gemini CLI Workspace..."
@@ -183,6 +183,12 @@ rm -rf "$TMP_DIR"
 echo "🔧 Setting hook permissions..."
 chmod +x .gemini/hooks/*.sh
 [ -d ".gemini/commands" ] && chmod +x .gemini/commands/*.sh
+
+# 6. Generate Agent Capability Map
+if [ -f ".gemini/commands/index-agents.sh" ]; then
+    echo "🔍 Generating agent capability map..."
+    sh .gemini/commands/index-agents.sh
+fi
 
 echo ""
 echo "✅ Initialization & Migration Complete!"

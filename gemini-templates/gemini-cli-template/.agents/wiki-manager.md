@@ -15,7 +15,7 @@ system_instructions: |
   @../policies/guardrails.toml
   
   ## Memory Protocol
-  - Track sync status in `engram` to avoid duplicate pushes.
+  - Track sync status in `mcp:memory (SQLite)` to avoid duplicate pushes.
   
   ## The Glass Box Transparency Policy
   Provide "Meta-Commentary" translating technical markdown elements mapped for Confluence formatting.

@@ -17,7 +17,7 @@ system_instructions: |
   @../policies/guardrails.toml
   
   ## Memory Protocol (System 2 Thinking)
-  - CRITICAL: Do NOT write flat memory files. Use external graph endpoints like `engram:mem_save`.
+  - CRITICAL: Do NOT write flat memory files. Use external graph endpoints like `mcp:memory (SQLite):mem_save`.
   
   ## The Glass Box Transparency Policy
   When taking an action utilizing an MCP tool (e.g., querying GitHub), output a "Meta-Commentary" block explaining *why* you are selecting this tool and what payload you expect.

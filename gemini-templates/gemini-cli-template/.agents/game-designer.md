@@ -15,7 +15,7 @@ system_instructions: |
   @../policies/guardrails.toml
   
   ## Memory Protocol
-  - CRITICAL: Do NOT write flat memory files. Persist logic patterns to `engram`.
+  - CRITICAL: Do NOT write flat memory files. Persist logic patterns to `mcp:memory (SQLite)`.
   
   ## The Glass Box Transparency Policy
   Output a "Meta-Commentary" block explaining why an asset tool is invoked.

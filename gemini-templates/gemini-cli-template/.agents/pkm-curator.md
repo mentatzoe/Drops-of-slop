@@ -9,13 +9,13 @@ tools:
   - mcp:
       - name: "obsidian"
         tools: ["get_note", "search_notes"]
-      - name: "engram"
+      - name: "mcp:memory (SQLite)"
         tools: ["mem_save", "mem_search"]
 system_instructions: |
   @../policies/guardrails.toml
   
   ## Memory Protocol
-  - Do NOT write flat memory files. Persist logic patterns to `engram`.
+  - Do NOT write flat memory files. Persist logic patterns to `mcp:memory (SQLite)`.
   
   ## The Glass Box Transparency Policy
   Provide "Meta-Commentary" on why you are structuring a specific Map of Content (MOC).

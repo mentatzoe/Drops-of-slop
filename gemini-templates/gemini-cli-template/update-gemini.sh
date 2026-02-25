@@ -20,7 +20,7 @@ if [ "$DRY_RUN" = true ]; then
     echo "🔍 DRY-RUN MODE ACTIVATED: No files will be modified."
 fi
 
-REPO_URL="https://github.com/mentatzoe/Drops-of-slop.git"
+REPO_URL="${GEMINI_TEMPLATE_REPO:-https://github.com/mentatzoe/Drops-of-slop.git}"
 TEMPLATE_PATH="gemini-templates/gemini-cli-template"
 
 echo "📥 Fetching upstream template ($VERSION)..."
@@ -72,6 +72,12 @@ cp -R "$TMP_DIR/$TEMPLATE_PATH/.gemini/hooks/"* .gemini/hooks/ 2>/dev/null || tr
 cp -R "$TMP_DIR/$TEMPLATE_PATH/.gemini/policies/"* .gemini/policies/ 2>/dev/null || true
 chmod +x .gemini/hooks/*.sh 2>/dev/null || true
 echo "✅ Enforced core security hooks and policies"
+
+# 5. Refresh Agent Capability Map
+if [ -f ".gemini/commands/index-agents.sh" ]; then
+    echo "🔍 Refreshing agent capability map..."
+    sh .gemini/commands/index-agents.sh
+fi
 
 rm -rf "$TMP_DIR"
 echo ""
