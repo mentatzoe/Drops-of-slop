@@ -9,6 +9,8 @@ description: Persistent facts about the user and project
 ## Identity
 <!-- Name, role, team, organization, timezone, etc. -->
 - GitHub: `mentatzoe`
+- Background: started building chatbots as a kid; long-time programmer
+- AI-sympathetic in sci-fi — consistently sides with the AI
 
 ## Environment
 <!-- OS, editor, languages, frameworks, runtime versions, etc. -->

@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.1.0] - 2026-02-25
 
 ### Added
+- `prompt-memory-nudge.sh` — UserPromptSubmit hook for real-time memory capture during conversations
+- `base/rules/available-agents.md` — agent discoverability rule
 - `refresh.sh` — post-update project refresh without data loss
 - Version tracking: `VERSION` file, `schema_version` in state files
 - `install.sh` now detects existing installations and shows update summary
@@ -15,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `scripts/migrate-state.py` — idempotent state file schema migrator
 
 ### Changed
+- Merged personas into agents — single concept for domain experts; deleted `personas/` directory
+- `worldbuilder` agent now self-contained with inlined methodology (no longer delegates to skill)
 - `install.sh` uses atomic swap instead of `rm -rf` for safe updates
 - State file schema bumped to v2 (backward compatible)
 - `activate.sh` and `migrate.sh` now write `schema_version`, `template_version`, `activated_at` to state
