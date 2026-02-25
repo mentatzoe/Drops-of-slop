@@ -32,6 +32,7 @@ description: User preferences for how work should be done
 - Cares about new-user experience — reviews docs from a first-timer's perspective, identifies organizational gaps not just content gaps
 - Prefers detailed implementation plans before execution — with exact line numbers and specific change descriptions
 - Likes structured plan formats: numbered steps with lettered sub-steps (1a, 1b, 1c), file action tables, and verification checklists
+- Every PR that changes behavior should update CHANGELOG.md and bump VERSION — keep these consistent
 
 ## Memory & Automation
 - Wants memory updates to happen in real-time during conversation, not just at session end — reduce post-session overhead
