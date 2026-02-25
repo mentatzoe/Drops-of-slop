@@ -24,6 +24,24 @@
         "-y",
         "@pepk/mcp-memory-sqlite"
       ]
+    },
+    "github": {
+      "command": "npx",
+      "args": [
+        "github-mcp"
+      ]
+    },
+    "vercel": {
+      "command": "npx",
+      "args": [
+        "vercel-mcp"
+      ]
+    },
+    "puppeteer": {
+      "command": "npx",
+      "args": [
+        "puppeteer"
+      ]
     }
   }
 }
