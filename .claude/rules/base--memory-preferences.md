@@ -22,6 +22,7 @@ description: User preferences for how work should be done
 - Prefers fewer concepts that do more over many specialized concepts — reduce cognitive load for users
 - Favors automatic/discoverable behavior over manual invocation patterns (e.g., auto-delegation via description fields rather than requiring users to remember `/command` names)
 - Values MECE (Mutually Exclusive, Collectively Exhaustive) categorizations
+- Historical design documents should stay locked as records, not updated to match current architecture
 
 ## Workflow
 <!-- How they like to review changes, commit frequency, PR style, etc. -->
