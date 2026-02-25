@@ -441,8 +441,13 @@ if [ -d "$BASE_DIR/hooks" ]; then
                 echo "    To update: cp \"$hook\" \"$DEST\" && chmod +x \"$DEST\""
             fi
         else
-            warn "  New hook available: hooks/$HOOK_NAME"
-            echo "    To install: cp \"$hook\" \"$DEST\" && chmod +x \"$DEST\""
+            if [ "$DRY_RUN" -eq 1 ]; then
+                dry "install new hook: hooks/$HOOK_NAME"
+            else
+                cp "$hook" "$DEST"
+                chmod +x "$DEST"
+                info "  Installed new hook: hooks/$HOOK_NAME"
+            fi
         fi
     done
 fi

@@ -5,6 +5,16 @@ All notable changes to claude-templates will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2026-02-25
+
+### Added
+- `prompt-version-check.sh` — session-start hook for local template version checking
+- `base/rules/update-instructions.md` — teaches Claude how to update templates on demand
+- CLAUDE.md "Template Updates" section
+
+### Changed
+- `refresh.sh` auto-installs new hooks (previously only warned)
+
 ## [1.1.0] - 2026-02-25
 
 ### Added

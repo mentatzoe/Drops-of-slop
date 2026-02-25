@@ -33,6 +33,10 @@
           {
             "type": "command",
             "command": ".claude/hooks/prompt-memory-nudge.sh"
+          },
+          {
+            "type": "command",
+            "command": ".claude/hooks/prompt-version-check.sh"
           }
         ]
       }
