@@ -7,14 +7,21 @@
   },
   "telemetry": {
     "enabled": true,
-    "logFile": ".gemini/telemetry.json"
+    "target": "local",
+    "outfile": ".gemini/telemetry.json"
   },
   "hooks": {
     "BeforeTool": [
-      ".gemini/hooks/block-secrets.sh"
+      {
+        "type": "command",
+        "command": ".gemini/hooks/block-secrets.sh"
+      }
     ],
     "AfterTool": [
-      ".gemini/hooks/audit-logger.sh"
+      {
+        "type": "command",
+        "command": ".gemini/hooks/audit-logger.sh"
+      }
     ]
   },
   "mcpServers": {
@@ -41,6 +48,12 @@
       "command": "npx",
       "args": [
         "puppeteer"
+      ]
+    },
+    "obsidian": {
+      "command": "npx",
+      "args": [
+        "obsidian-mcp"
       ]
     }
   }
