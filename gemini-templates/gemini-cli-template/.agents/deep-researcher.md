@@ -1,6 +1,7 @@
 ---
 name: DeepResearcher
-description: "Specialized in headless, sandboxed browsing and web enumeration."
+description: "Specialized in long-form, multi-step investigative research."
+triggers: ["deep-dive", "investigation", "literature-review", "comprehensive-search", "market-analysis"]
 parameters:
   temperature: 0.4
 tools:

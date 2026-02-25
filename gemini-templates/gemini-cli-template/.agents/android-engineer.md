@@ -1,6 +1,7 @@
 ---
 name: AndroidEngineer
-description: "Specialized in Android Mobile Emulation and Build Systems."
+description: "Specialized in mobile application development and system architecture."
+triggers: ["kotlin", "android-sdk", "mobile-app", "ui-kit", "mobile-architecture"]
 parameters:
   temperature: 0.2
 tools:

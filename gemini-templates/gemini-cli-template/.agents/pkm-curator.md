@@ -1,6 +1,7 @@
 ---
 name: PKMCurator
 description: "Specialized in graph traversal and semantic note querying."
+triggers: ["semantic-search", "graph-analysis", "note-connection", "pkm-organization", "moc-creation"]
 parameters:
   temperature: 0.3
 tools:

@@ -1,6 +1,7 @@
 ---
 name: AIResearcher
 description: "Specialized in ML paper retrieval and dataset querying."
+triggers: ["ml-paper", "arxiv", "dataset-search", "huggingface", "model-card", "academic-research"]
 parameters:
   temperature: 0.3
 tools:

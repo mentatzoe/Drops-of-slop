@@ -1,6 +1,7 @@
 ---
 name: implementer
 description: "Use this agent ONLY after the user has explicitly approved a plan from the planner. It writes code and executes shell commands."
+triggers: ["code-execution", "file-edit", "implementation", "write-code", "refactoring"]
 parameters:
   temperature: 0.2
 tools:

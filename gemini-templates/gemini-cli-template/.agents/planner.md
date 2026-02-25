@@ -1,6 +1,7 @@
 ---
 name: planner
-description: "Use this agent after requirements are gathered by the architect. It creates strategic implementation plans."
+description: "Analyzes requirements to draft a step-by-step implementation checklist."
+triggers: ["implementation-plan", "checklist", "step-by-step", "task-breakdown", "project-planning"]
 parameters:
   temperature: 0.3
 tools:

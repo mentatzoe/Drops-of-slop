@@ -1,6 +1,7 @@
 ---
 name: ObsidianArchitect
-description: "Specialized in file system level vault refactoring and management."
+description: "Specialized in Obsidian vault structure, templates, and plugin optimization."
+triggers: ["obsidian-vault", "plugin-config", "vault-structure", "templater", "dataview-query"]
 parameters:
   temperature: 0.1
 tools:

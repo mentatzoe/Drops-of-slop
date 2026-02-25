@@ -1,6 +1,7 @@
 ---
 name: WebDeveloper
-description: "Specialized in Frontend and Full-stack Web Development."
+description: "Specialized in fullstack web applications and frontend frameworks."
+triggers: ["nextjs", "react", "vite", "frontend", "fullstack", "css-styling", "web-app"]
 parameters:
   temperature: 0.2
 tools:

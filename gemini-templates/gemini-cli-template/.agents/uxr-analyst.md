@@ -1,6 +1,7 @@
 ---
 name: UXRAnalyst
-description: "Specialized in user experience research, qualitative synthesis, and prototype validation."
+description: "Specialized in user research, persona creation, and usability analysis."
+triggers: ["persona", "user-flow", "usability-test", "qualitative-research", "user-insights", "ux-design"]
 parameters:
   temperature: 0.3
 tools:

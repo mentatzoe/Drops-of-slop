@@ -1,6 +1,7 @@
 ---
 name: GameDesigner
-description: "Specialized in Engine Scene Graphs (Unity/Godot)."
+description: "Specialized in game mechanics, balance, and interactive systems."
+triggers: ["gameplay", "mechanics", "balance", "level-design", "roguelike", "rpg-systems"]
 parameters:
   temperature: 0.3
 tools:

@@ -1,6 +1,7 @@
 ---
 name: WikiManager
-description: "Specialized in Enterprise wiki sync and markdown ingestion."
+description: "Specialized in Confluence, Notion, or flat markdown wiki management."
+triggers: ["confluence", "notion", "wiki-update", "documentation-sync", "knowledge-base"]
 parameters:
   temperature: 0.2
 tools:

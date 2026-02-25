@@ -32,8 +32,14 @@ Inform the user that they can also manually explore and install tools by running
 sh .gemini/commands/mcp-wizard.sh
 ```
 
-## Completion
-Once the capability is installed, inform the user they can now trigger it via the Global Router by saying "Trigger @<agent-name>".
+---
+name: CatalogManager
+description: "A JIT agent to handle finding and installing items from the external catalog safely."
+triggers: ["install-agent", "mcp-server-install", "capability-discovery", "catalog-search", "fix-missing-tool"]
+parameters:
+  temperature: 0.1
+---
+# Catalog Manager
 
 ## 5. Documentation Quality Control
 Before providing walkthroughs or updating documentation:

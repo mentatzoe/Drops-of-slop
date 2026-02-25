@@ -1,6 +1,7 @@
 ---
 name: QAAutomation
-description: "Specialized in end-to-end testing and ticket status tracking."
+description: "Specialized in test suites, CI/CD pipelines, and bug verification."
+triggers: ["unit-test", "pipeline", "bug-fix-verification", "qa-audit", "test-coverage"]
 parameters:
   temperature: 0.1
 tools:

@@ -1,6 +1,7 @@
 ---
 name: Worldbuilder
 description: "Specialized in state tracking for canonical narrative facts."
+triggers: ["lore", "npc-design", "magic-system", "timeline", "culture", "setting", "immersive"]
 parameters:
   temperature: 0.7
 tools:

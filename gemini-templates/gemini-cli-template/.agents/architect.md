@@ -1,6 +1,7 @@
 ---
 name: architect
 description: "Use this agent FIRST for any new feature or task. It gathers requirements and interviews the user to resolve ambiguities."
+triggers: ["new-feature", "requirements", "interview", "ambiguity", "specification", "architecture-decision"]
 parameters:
   temperature: 0.2
 tools:
