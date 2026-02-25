@@ -13,6 +13,11 @@ description: Past decisions with dates for consistency
 
 <!-- Entries below, newest first -->
 
+## 2026-02-25: README as overview, GUIDE as walkthrough — deduplicate docs
+**Decision:** Slim README.md to be a quick-reference overview with short summaries and links to GUIDE.md for detailed walkthroughs. Remove duplicated content (env vars table, custom overlays, migration steps) from README.
+**Rationale:** First-time users were overwhelmed by README's length and confused by seeing the same content in two places. README should answer "what is this and should I use it?" while GUIDE answers "how do I use it?"
+**Alternatives considered:** Could have kept everything in README and removed GUIDE, but the guide's procedural depth (flag examples, detection signals, dry-run) doesn't belong in a project overview.
+
 ## 2026-02-24: Assemble test secrets at runtime to avoid tripping pre-commit hook
 **Decision:** Test files that exercise secret detection must assemble secret-like strings at runtime via helper functions (e.g. `_make_aws_key`), not embed them as literals.
 **Rationale:** The pre-commit-safety hook scans all staged files including test files. Embedding literal patterns like `AKIA...` or `ghp_...` in test source would cause the hook to block its own test file from being committed.

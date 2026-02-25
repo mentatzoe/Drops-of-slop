@@ -2,6 +2,10 @@
 
 A template repository for managing Claude Code configurations across diverse project types. Uses a **hybrid base-plus-overlays** architecture — think Docker layers or Kustomize overlays.
 
+## Why?
+
+Manually maintaining `.claude/` configuration across projects is tedious and inconsistent — every new project starts from scratch, rules drift between repos, and onboarding a teammate means copy-pasting config files. Claude Templates solves this with shared base standards plus domain-specific overlays that activate with one command. New project setup takes seconds, and when you improve a rule or fix a hook, every project picks up the change on the next refresh.
+
 ## Quick Start
 
 ```bash
@@ -19,7 +23,45 @@ curl -fsSL https://raw.githubusercontent.com/mentatzoe/Drops-of-slop/main/claude
 
 # Deactivate
 ~/.claude-templates/deactivate.sh ~/my-project
+
+# Refresh projects after updating templates
+~/.claude-templates/refresh.sh ~/my-project
 ```
+
+## What You Get
+
+After activation, your project has a fully configured `.claude/` directory:
+
+```
+my-project/
+├── .claude/
+│   ├── rules/
+│   │   ├── base--security.md          ← symlink (shared standards)
+│   │   ├── base--code-quality.md      ← symlink
+│   │   ├── base--git-workflow.md      ← symlink
+│   │   ├── base--memory-profile.md    ← copy (per-project, editable)
+│   │   ├── base--memory-preferences.md
+│   │   ├── base--memory-decisions.md
+│   │   ├── base--memory-sessions.md
+│   │   ├── webdev--frontend.md        ← symlink (overlay rules)
+│   │   └── webdev--api-design.md      ← symlink
+│   ├── skills/                        ← symlinks (personas + overlay skills)
+│   ├── commands/                      ← symlinks (overlay commands)
+│   ├── agents/                        ← symlinks (agent wrappers)
+│   ├── hooks/
+│   │   ├── pre-commit-safety.sh       ← copy (editable)
+│   │   └── stop-learning-capture.sh   ← copy (editable)
+│   ├── settings.json                  ← generated (merged from base + overlays)
+│   └── .activated-overlays.json       ← generated (state for refresh/deactivate)
+├── .mcp.json                          ← generated (merged MCP configs)
+└── CLAUDE.md                          ← generated (from base template)
+```
+
+### What to commit
+
+- **Commit**: `CLAUDE.md`, `.claude/settings.json`, `.mcp.json`, `.claude/.activated-overlays.json`, memory files (`base--memory-*.md`)
+- **Optional**: Symlinked rules/skills — no harm either way since `refresh.sh` recreates them
+- **Don't commit**: `node_modules/`, `.env`, or anything in your existing `.gitignore`
 
 ## Architecture
 
@@ -73,7 +115,7 @@ To create your own composition, see [Create a Custom Composition](GUIDE.md#creat
 
 ### Personas (always included)
 
-Persona skills are loaded into every activated project and appear as switchable modes:
+Personas are switchable behavior modes invoked as skills (e.g., `/architect`, `/strict-reviewer`). They change how Claude approaches a task — tone, methodology, what it focuses on — but don't restrict tool access. Every persona is available in every activated project regardless of which overlays you chose.
 
 | Persona | Description |
 |---------|-------------|
@@ -85,7 +127,7 @@ Persona skills are loaded into every activated project and appear as switchable 
 
 ### Agents (delegated execution)
 
-Agent wrappers run personas in isolated contexts with specific tool restrictions:
+Agents are delegated execution contexts that wrap a persona with specific tool restrictions. Invoke them with `@agent <name>` (e.g., `@strict-reviewer`). Unlike personas, agents run in isolation — they can't modify files they shouldn't touch.
 
 | Agent | Persona | Model | Restrictions |
 |-------|---------|-------|-------------|
@@ -95,19 +137,7 @@ Agent wrappers run personas in isolated contexts with specific tool restrictions
 
 ## How Activation Works
 
-When you run `activate.sh`:
-
-1. **Validates** overlays exist and checks for conflicts (e.g., `web-dev` conflicts with `android-dev`)
-2. **Resolves dependencies** — auto-includes any overlays listed in `depends`
-3. **Symlinks base rules** into `.claude/rules/` with `base--` prefix (memory files are **copied** instead — see below)
-4. **Symlinks overlay rules** with `{overlay}--` prefix
-5. **Symlinks persona skills** (always included regardless of overlay selection)
-6. **Symlinks overlay skills, commands, and agents** into `.claude/`
-7. **Deep-merges MCP configs** from all selected overlays into `.mcp.json`
-8. **Deep-merges settings** from base + overlays into `.claude/settings.json`
-9. **Copies hooks** (not symlinked, so they survive deactivation cleanly)
-10. **Generates CLAUDE.md** from base template
-11. **Records state** in `.claude/.activated-overlays.json` for clean deactivation
+`activate.sh` validates overlays and checks for conflicts → symlinks rules, skills, commands, and agents while merging MCP and settings configs → records state for clean deactivation. Memory files and hooks are **copied** (not symlinked) so each project can customize them independently. See [Set Up a New Project](GUIDE.md#set-up-a-new-project) in the Usage Guide for the full walkthrough.
 
 ### Memory System
 
@@ -130,122 +160,33 @@ This is a "belt and suspenders" approach: the CLAUDE.md instruction handles ~90%
 
 ## Creating Custom Overlays
 
-1. Create a directory under `overlays/`:
-
-```
-overlays/my-overlay/
-├── overlay.json
-├── rules/
-│   └── my-rules.md
-├── skills/
-│   └── my-skill/
-│       └── SKILL.md
-└── mcp.json
-```
-
-2. Define `overlay.json`:
-
-```json
-{
-  "name": "my-overlay",
-  "description": "What this overlay does",
-  "conflicts": [],
-  "depends": [],
-  "mcp_servers": []
-}
-```
-
-3. Add path-scoped rules with YAML frontmatter:
-
-```markdown
----
-description: What these rules cover
-paths:
-  - "src/**/*.ts"
-  - "**/*.tsx"
----
-
-# My Rules
-
-- Rule 1
-- Rule 2
-```
-
-4. Add the overlay to `manifest.json`
-
-5. Validate: `./scripts/validate-overlay.sh overlays/my-overlay manifest.json`
+Create a directory under `overlays/` with an `overlay.json` and at least one rule file, register it in `manifest.json`, and validate with `validate-overlay.sh`. See [Create a Custom Overlay](GUIDE.md#create-a-custom-overlay) in the Usage Guide for the full walkthrough.
 
 ## Environment Variables
 
-MCP servers use `${ENV_VAR}` syntax. Set these before activation:
-
-| Variable | Used By |
-|----------|---------|
-| `BRAVE_API_KEY` | research overlay (Brave Search) |
-| `EXA_API_KEY` | research overlay (Exa) |
-| `HUGGINGFACE_TOKEN` | ai-research overlay |
-| `OBSIDIAN_REST_API_KEY` | knowledge-management, worldbuilding overlays |
-| `MEDIAWIKI_URL` | worldbuilding, wiki-management overlays |
-| `MEDIAWIKI_BOT_USERNAME` | worldbuilding, wiki-management overlays |
-| `MEDIAWIKI_BOT_PASSWORD` | worldbuilding, wiki-management overlays |
-| `ANDROID_HOME` | android-dev overlay |
+Some overlays require environment variables for MCP server access (e.g., `BRAVE_API_KEY` for the research overlay). See the [Environment Variables](GUIDE.md#environment-variables) table in the Usage Guide for the full list.
 
 ## Migrating Existing Projects
 
-The `migrate.sh` script analyzes an existing project, auto-detects appropriate overlays, and migrates to the overlay architecture while preserving all custom configuration.
-
-### Usage
-
-```bash
-# Interactive: auto-detect overlays and confirm before applying
-./migrate.sh ~/existing-project
-
-# Auto mode: accept auto-detected overlays without confirmation
-./migrate.sh ~/existing-project --auto
-
-# Manual: specify overlays explicitly
-./migrate.sh ~/existing-project --overlays web-dev quality-assurance
-
-# Composition: use a pre-built overlay combo
-./migrate.sh ~/existing-project --composition fullstack-web
-
-# Dry run: preview changes without applying
-./migrate.sh ~/existing-project --dry-run
-
-# Skip backup (e.g., when re-running after fixing issues)
-./migrate.sh ~/existing-project --no-backup
-```
-
-### What it does
-
-1. **Analyzes the project** — detects languages, frameworks, test configs, and existing Claude Code configuration
-2. **Recommends overlays** — maps detected signals to overlays (e.g., `package.json` with React deps -> `web-dev`)
-3. **Backs up existing config** — saves CLAUDE.md, `.claude/`, and `.mcp.json` to `.claude/.migration-backup/<timestamp>/`
-4. **Preserves custom content**:
-   - Custom rules are renamed with `custom--` prefix (e.g., `my-rules.md` -> `custom--my-rules.md`)
-   - Custom skills and commands are left in place
-   - Custom MCP servers are merged with overlay servers
-   - Custom CLAUDE.md content is preserved under a `## Project-Specific` section
-   - Custom hooks are renamed with `custom-` prefix if they conflict with template hooks
-5. **Applies the overlay system** — same as `activate.sh` but with merge-aware logic
-
-### Detection signals
-
-| Signal | Overlay |
-|--------|---------|
-| `package.json` with React/Next/Vue/Angular/Svelte deps | `web-dev` |
-| `build.gradle` with Android plugin, `AndroidManifest.xml` | `android-dev` |
-| `project.godot`, Unity project structure, `.blend` files | `gamedev` |
-| Python deps with torch/tensorflow/sklearn/transformers | `ai-research` |
-| `.obsidian/` directory | `knowledge-management` |
-| `LocalSettings.php` | `wiki-management` |
-| Test dirs (`test/`, `__tests__/`), test configs (jest, pytest, vitest) | `quality-assurance` |
-
-### Re-migration
-
-Running `migrate.sh` on an already-migrated project is safe — it deactivates the existing setup first, then re-migrates while preserving custom content.
+Already have `CLAUDE.md`, `.claude/`, or `.mcp.json`? The `migrate.sh` script auto-detects your frameworks, recommends overlays, backs up your existing config, and preserves all custom rules, skills, and MCP servers. Your work is safe — custom content gets a `custom--` prefix and keeps loading. See [Migrate an Existing Project](GUIDE.md#migrate-an-existing-project) in the Usage Guide for full details.
 
 ## Scripts
+
+### Lifecycle scripts
+
+User-facing scripts at the top level:
+
+| Script | Purpose |
+|--------|---------|
+| `install.sh` | Install or update the template system |
+| `activate.sh` | Set up overlays on a new project |
+| `migrate.sh` | Adopt overlays on a project with existing config |
+| `deactivate.sh` | Remove all template files from a project |
+| `refresh.sh` | Re-link and re-merge after a template update |
+
+### Helper scripts
+
+Internal scripts under `scripts/`:
 
 | Script | Purpose |
 |--------|---------|
@@ -253,4 +194,3 @@ Running `migrate.sh` on an already-migrated project is safe — it deactivates t
 | `scripts/validate-overlay.sh` | Validates overlay structure and schema |
 | `scripts/detect-project.sh` | Analyzes a project and recommends overlays (JSON output) |
 | `scripts/merge-claude-md.py` | Merges existing CLAUDE.md with the base template |
-| `refresh.sh` | Re-links symlinks and re-merges configs after a template update |

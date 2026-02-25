@@ -39,6 +39,8 @@ Re-run the installer. It replaces the existing installation in place:
 curl -fsSL https://raw.githubusercontent.com/mentatzoe/Drops-of-slop/main/claude-templates/install.sh | bash
 ```
 
+> **Note:** This updates templates in `~/.claude-templates/` but does not touch activated projects. Run `refresh.sh` on each project to pick up the new templates — see [Refresh After Updates](#refresh-after-updates).
+
 ### Manual install (git clone)
 
 If you prefer to clone the full repository:
@@ -56,6 +58,16 @@ rm -rf ~/.claude-templates
 ```
 
 > **Note:** All examples in this guide use relative paths (e.g., `./activate.sh`). If you used the remote installer, replace `./` with `~/.claude-templates/` (or your custom install path).
+
+
+## Which Script Do I Run?
+
+| Situation | Script |
+|-----------|--------|
+| New project, no `.claude/` directory | `activate.sh` — sets up overlays from scratch |
+| Existing project with `CLAUDE.md` or `.claude/` | `migrate.sh` — preserves your custom config while adopting the overlay system |
+| Already activated, templates were updated | `refresh.sh` — re-links and re-merges without changing which overlays are active |
+| Want to remove everything | `deactivate.sh` — cleans up all template files, preserves your custom work |
 
 
 ## Set Up a New Project
@@ -135,7 +147,9 @@ Check the `conflicts` field in each overlay's `overlay.json`. For example, `web-
 
 ## Add External Components
 
-External components come from the [aitmpl.com catalog](https://github.com/davila7/claude-code-templates). Three ways to install them:
+External components are community-contributed agents, skills, commands, and other Claude Code configuration from the [aitmpl.com catalog](https://github.com/davila7/claude-code-templates) — a curated open-source collection. They're optional and complement the built-in overlays. Installed components get an `ext--` prefix so they're easy to distinguish from local files.
+
+Three ways to install them:
 
 ### During activation
 
@@ -168,8 +182,6 @@ Install all overlay-recommended externals at once:
 ```bash
 ./scripts/fetch-external.sh install ~/my-project --recommended
 ```
-
-Installed components get an `ext--` prefix to distinguish them from local files.
 
 ### Browse the catalog
 
@@ -205,6 +217,18 @@ Remove a component by type and name (not the full category/name path):
 ## Migrate an Existing Project
 
 For projects that already have `CLAUDE.md`, `.claude/`, or `.mcp.json`.
+
+### Your custom work is safe
+
+Migration preserves everything you've built:
+
+- Custom rules are renamed with a `custom--` prefix (e.g., `my-rules.md` becomes `custom--my-rules.md`) and continue to load.
+- Custom MCP servers are merged with overlay servers in `.mcp.json`.
+- Custom `CLAUDE.md` content is preserved under a `## Project-Specific` section.
+- Custom hooks are renamed with a `custom-` prefix if they conflict with template hooks.
+- Custom skills and commands are left in place.
+
+Before migration, the script also backs up your existing configuration to `.claude/.migration-backup/<timestamp>/`.
 
 ### Interactive mode (default)
 
@@ -246,19 +270,7 @@ Preview what the migration would change without modifying anything:
 ./migrate.sh ~/my-project --dry-run
 ```
 
-### What gets preserved
-
-Your existing work is not discarded:
-
-- Custom rules are renamed with a `custom--` prefix (e.g., `my-rules.md` becomes `custom--my-rules.md`) and continue to load.
-- Custom MCP servers are merged with overlay servers in `.mcp.json`.
-- Custom `CLAUDE.md` content is preserved under a `## Project-Specific` section.
-- Custom hooks are renamed with a `custom-` prefix if they conflict with template hooks.
-- Custom skills and commands are left in place.
-
-### What gets backed up
-
-Before migration, the script backs up your existing configuration to `.claude/.migration-backup/<timestamp>/`. This includes `CLAUDE.md`, `.mcp.json`, and `.claude/` contents.
+### Backup options
 
 Change the backup location with `--backup-dir`:
 
@@ -533,6 +545,12 @@ chmod +x ~/my-project/.claude/hooks/*.sh
 1. Verify `.mcp.json` exists in your project root — if not, re-run `activate.sh`
 2. Check that required environment variables are set (e.g., `echo $BRAVE_API_KEY`)
 3. Run `claude mcp list` to confirm Claude Code sees the configured servers
+
+### Activation failed partway through
+
+**Cause:** A network error, missing dependency, or permission issue interrupted `activate.sh` before it finished.
+
+**Fix:** Re-running `activate.sh` with the same arguments is safe — it overwrites partial state cleanly. If you'd rather start fresh, run `deactivate.sh` first to remove any partial files, then activate again.
 
 ### Memory files not updating between sessions
 
