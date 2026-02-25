@@ -39,6 +39,8 @@ Re-run the installer. It replaces the existing installation in place:
 curl -fsSL https://raw.githubusercontent.com/mentatzoe/Drops-of-slop/main/claude-templates/install.sh | bash
 ```
 
+> **Note:** This updates templates in `~/.claude-templates/` but does not touch activated projects. Run `refresh.sh` on each project to pick up the new templates — see [Refresh After Updates](#refresh-after-updates).
+
 ### Manual install (git clone)
 
 If you prefer to clone the full repository:

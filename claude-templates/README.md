@@ -19,6 +19,9 @@ curl -fsSL https://raw.githubusercontent.com/mentatzoe/Drops-of-slop/main/claude
 
 # Deactivate
 ~/.claude-templates/deactivate.sh ~/my-project
+
+# Refresh projects after updating templates
+~/.claude-templates/refresh.sh ~/my-project
 ```
 
 ## Architecture
@@ -247,10 +250,25 @@ Running `migrate.sh` on an already-migrated project is safe — it deactivates t
 
 ## Scripts
 
+### Lifecycle scripts
+
+User-facing scripts at the top level:
+
+| Script | Purpose |
+|--------|---------|
+| `install.sh` | Install or update the template system |
+| `activate.sh` | Set up overlays on a new project |
+| `migrate.sh` | Adopt overlays on a project with existing config |
+| `deactivate.sh` | Remove all template files from a project |
+| `refresh.sh` | Re-link and re-merge after a template update |
+
+### Helper scripts
+
+Internal scripts under `scripts/`:
+
 | Script | Purpose |
 |--------|---------|
 | `scripts/merge-configs.py` | Deep-merges MCP and settings JSON files |
 | `scripts/validate-overlay.sh` | Validates overlay structure and schema |
 | `scripts/detect-project.sh` | Analyzes a project and recommends overlays (JSON output) |
 | `scripts/merge-claude-md.py` | Merges existing CLAUDE.md with the base template |
-| `refresh.sh` | Re-links symlinks and re-merges configs after a template update |
