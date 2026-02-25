@@ -35,6 +35,13 @@ Rules in `.claude/rules/` are auto-loaded based on file paths. Follow them.
 - Architecture details live in `.claude/rules/` — they load automatically by path
 - For project-specific context, check `docs/` or `ARCHITECTURE.md` if they exist
 
+## Template Updates
+
+- This project uses `claude-templates` for `.claude/` configuration management
+- A version check runs automatically at session start — no action needed
+- If a stale version is detected, inform the user and offer to run `refresh.sh`
+- Full update instructions: `.claude/rules/base--update-instructions.md`
+
 ## When to Read Reference Files
 
 - Before reviewing code: check if a review skill is available via `/skills`

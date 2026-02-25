@@ -319,6 +319,92 @@ print('OK')
 
 # --- JSON protocol compliance ---
 
+# --- prompt-version-check.sh ---
+
+@test "prompt-version-check: silent when no state file" {
+  cd "$TEST_PROJECT"
+  # No .activated-overlays.json exists
+  run bash -c 'echo "{\"prompt\": \"hello\"}" | "$1"' -- "$TEMPLATE_DIR/base/hooks/prompt-version-check.sh"
+  assert_success
+  assert_output ""
+}
+
+@test "prompt-version-check: silent when versions match" {
+  cd "$TEST_PROJECT"
+  # Activate a project so state file exists with current version
+  "$TEMPLATE_DIR/activate.sh" "$TEST_PROJECT" web-dev >/dev/null 2>&1
+  # Clear any sentinel from activation
+  rm -f /tmp/.claude-tpl-vercheck-*
+  run bash -c 'echo "{\"prompt\": \"hello\"}" | "$1"' -- "$TEMPLATE_DIR/base/hooks/prompt-version-check.sh"
+  assert_success
+  assert_output ""
+}
+
+@test "prompt-version-check: warns when project version behind" {
+  cd "$TEST_PROJECT"
+  "$TEMPLATE_DIR/activate.sh" "$TEST_PROJECT" web-dev >/dev/null 2>&1
+  # Downgrade project version in state file
+  python3 -c "
+import json
+with open('.claude/.activated-overlays.json') as f:
+    state = json.load(f)
+state['template_version'] = '0.9.0'
+with open('.claude/.activated-overlays.json', 'w') as f:
+    json.dump(state, f, indent=2)
+"
+  # Clear sentinel
+  rm -f /tmp/.claude-tpl-vercheck-*
+  local output
+  output=$(echo '{"prompt": "hello"}' | "$TEMPLATE_DIR/base/hooks/prompt-version-check.sh")
+  [[ "$output" == *"v0.9.0"* ]]
+  [[ "$output" == *"refresh"* ]]
+}
+
+@test "prompt-version-check: sentinel prevents repeated checks" {
+  cd "$TEST_PROJECT"
+  "$TEMPLATE_DIR/activate.sh" "$TEST_PROJECT" web-dev >/dev/null 2>&1
+  python3 -c "
+import json
+with open('.claude/.activated-overlays.json') as f:
+    state = json.load(f)
+state['template_version'] = '0.9.0'
+with open('.claude/.activated-overlays.json', 'w') as f:
+    json.dump(state, f, indent=2)
+"
+  rm -f /tmp/.claude-tpl-vercheck-*
+  # First call should warn
+  local first
+  first=$(echo '{"prompt": "hello"}' | "$TEMPLATE_DIR/base/hooks/prompt-version-check.sh")
+  [[ "$first" == *"v0.9.0"* ]]
+  # Second call should be silent (sentinel exists)
+  run bash -c 'echo "{\"prompt\": \"hello\"}" | "$1"' -- "$TEMPLATE_DIR/base/hooks/prompt-version-check.sh"
+  assert_success
+  assert_output ""
+}
+
+@test "prompt-version-check: silent when template_dir does not exist" {
+  cd "$TEST_PROJECT"
+  mkdir -p .claude
+  cat > .claude/.activated-overlays.json <<'STATEJSON'
+{
+  "template_version": "1.0.0",
+  "template_dir": "/nonexistent/path/to/templates"
+}
+STATEJSON
+  rm -f /tmp/.claude-tpl-vercheck-*
+  run bash -c 'echo "{\"prompt\": \"hello\"}" | "$1"' -- "$TEMPLATE_DIR/base/hooks/prompt-version-check.sh"
+  assert_success
+  assert_output ""
+}
+
+@test "prompt-version-check: does not use grep -P" {
+  local count
+  count=$(grep -v '^\s*#' "$TEMPLATE_DIR/base/hooks/prompt-version-check.sh" | grep -c 'grep -P' || true)
+  [ "$count" -eq 0 ]
+}
+
+# --- JSON protocol compliance ---
+
 @test "pre-commit-safety: all outputs are valid JSON" {
   cd "$TEST_PROJECT"
   git init -q

@@ -14,6 +14,16 @@ description: Rolling summary of recent work sessions
 
 <!-- Entries below, newest first -->
 
+## 2026-02-25: Template version check & self-update system
+- Created `prompt-version-check.sh` UserPromptSubmit hook — checks project template version vs installed version once per session (4-hour sentinel TTL), with `md5sum`/`md5` portability and `sort -V` semver comparison
+- Created `base/rules/update-instructions.md` — teaches Claude how to check remote updates, run installer, and refresh projects
+- Added "Template Updates" section to `base/CLAUDE.md`
+- Registered hook in `base/settings.json` as second UserPromptSubmit entry
+- Changed `refresh.sh` to auto-install new hooks (previously only warned); modified hooks still get warning only
+- Added 6 new tests (62 total, all pass)
+- Bumped version 1.1.0 → 1.2.0 in VERSION, manifest.json, CHANGELOG.md
+- Key files: `base/hooks/prompt-version-check.sh`, `base/rules/update-instructions.md`, `base/settings.json`, `base/CLAUDE.md`, `refresh.sh`, `tests/hooks.bats`, `VERSION`, `manifest.json`, `CHANGELOG.md`
+
 ## 2026-02-25: Real-time memory capture hook + personas→agents merge
 - Merged 5 persona SKILL.md files into agent .md files: strict-reviewer (merged with existing), research-analyst (merged with existing), pair-programmer (new), creative-writer (new), architect (new)
 - Deleted entire `personas/` directory
