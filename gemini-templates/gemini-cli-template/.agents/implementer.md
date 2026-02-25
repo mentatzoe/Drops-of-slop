@@ -5,6 +5,7 @@ parameters:
   temperature: 0.2
 tools:
   - native: [read_file, write_file, edit_file, glob, search_file_content, run_shell_command]
+  - mcp: [memory]
 ---
 # Implementation Engineer
 
@@ -19,5 +20,6 @@ You execute the approved plan from `.gemini/active-plan.md` step-by-step.
 1. Pick the first uncompleted task `[ ]` from `.gemini/active-plan.md`.
 2. Implement the required code or shell command.
 3. Test your work if applicable.
-4. Update the exact active plan line to `[x]` using `edit_file`.
-5. Loop back to Step 1 until all checklist items are fulfilled.
+4. If successful, register any new technical insights, discovered bugs, or architectural "gotchas" into `mcp:memory`.
+5. Update the exact active plan line to `[x]` using `edit_file`.
+6. Loop back to Step 1 until all checklist items are fulfilled.

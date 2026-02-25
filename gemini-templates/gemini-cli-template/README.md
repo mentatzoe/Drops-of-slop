@@ -61,9 +61,15 @@ The template enforces three steps for building new features:
 
 ## Memory Protocol (Git-Synced SQLite)
 
-The template routes persistent memory operations exclusively through `@pepk/mcp-memory-sqlite`. This is a drop-in replacement for the official Knowledge Graph that runs on SQLite with Write-Ahead Logging (WAL), allowing multi-agent concurrency.
+The template routes persistent memory operations exclusively through `@pepk/mcp-memory-sqlite` (invoked as `mcp:memory`).
 
-**Syncing AI Memory to Git:**
+### Prerequisites
+To use the Git-synced memory system, you MUST have the following installed:
+- **Node.js & npx**: For running the MCP server.
+- **sqlite3**: For database management and WAL flushing.
+- **jq**: For configuration merging.
+
+### Syncing AI Memory to Git
 If you want to version control the AI's mind alongside your codebase branches:
 1. The `.sqlite-wal` and `.sqlite-shm` temporary files are strictly ignored.
 2. Before you `git commit`, run `.gemini/hooks/sync-memory.sh`. This flushes the WAL and safely checkpoints the database.
@@ -79,11 +85,18 @@ The template follows a Zero-Trust architecture. Only essential local tools (like
 2.  The Wizard: Run `sh .gemini/commands/mcp-wizard.sh` to install extension from the catalog.
 3.  Global Preferences: Customize tools in `.gemini/preferences.json`. The agents prioritize these recommendations (e.g., Obsidian over Confluence).
 
-### JIT Capability Loading
+### JIT Capability Loading & Dependency Management
 Agents (like `@catalog-manager`) are preference-aware. If a task requires a missing tool, they:
 - Search `external-catalog.json`.
 - Propose a configuration patch to `.gemini/settings.json`.
+- Trigger `.gemini/commands/setup-deps.sh` to install requirements.
 - Wait for manual approval before installation.
+
+### Automated Dependency Manager
+Run `sh .gemini/commands/setup-deps.sh` at any time to:
+1. Scan `.gemini/settings.json` for Node-based MCP servers.
+2. Verify system prerequisites (`node`, `npx`, `sqlite3`, `jq`).
+3. Ensure the environment is ready for the active toolbar.
 
 ---
 You should then add any required API keys (e.g., `JIRA_API_TOKEN`) to your `.gemini/.env` file.

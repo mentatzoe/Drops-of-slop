@@ -10,6 +10,15 @@ REPO_URL="https://github.com/mentatzoe/Drops-of-slop.git"
 TEMPLATE_PATH="gemini-templates/gemini-cli-template"
 
 echo "💎 Initializing Gemini CLI Workspace..."
+echo "🔍 Checking prerequisites..."
+
+for cmd in node npx sqlite3 jq; do
+    if ! command -v "$cmd" &> /dev/null; then
+        echo "❌ Error: '$cmd' is not installed. Please install it before proceeding."
+        exit 1
+    fi
+done
+echo "  ✅ Prerequisites met."
 
 is_migration=false
 DRY_RUN=${DRY_RUN:-false}
@@ -126,13 +135,50 @@ if [ -f "$TMP_DIR/$TEMPLATE_PATH/README.md" ]; then
 fi
 cp "$TMP_DIR/$TEMPLATE_PATH/.gemini/.env.example" .gemini/.env.example 2>/dev/null || true
 
-# 4. Codebase Detection (New Gold Standard Step)
+# 4. Preference-Driven Tool Configuration
+if [ -f ".gemini/preferences.json" ] && command -v jq &> /dev/null; then
+    echo "⚙️  Configuring tools based on preferences..."
+    PREFS=".gemini/preferences.json"
+    SETTINGS=".gemini/settings.json"
+    
+    # Map preferences to MCP servers
+    MEM_PREF=$(jq -r '.memory_preference // empty' "$PREFS")
+    BROW_PREF=$(jq -r '.browser_preference // empty' "$PREFS")
+    DEP_PREF=$(jq -r '.deploy_preference // empty' "$PREFS")
+    PKM_PREF=$(jq -r '.pkm_preference // empty' "$PREFS")
+    
+    [ "$MEM_PREF" == "sqlite-local" ] && jq '.mcpServers.memory = {"command": "npx", "args": ["-y", "@pepk/mcp-memory-sqlite"]}' "$SETTINGS" > "$SETTINGS.tmp" && mv "$SETTINGS.tmp" "$SETTINGS"
+    [ "$BROW_PREF" == "standalone-browser" ] && jq '.mcpServers.puppeteer = {"command": "npx", "args": ["puppeteer"]}' "$SETTINGS" > "$SETTINGS.tmp" && mv "$SETTINGS.tmp" "$SETTINGS"
+    [ "$DEP_PREF" == "vercel" ] && jq '.mcpServers.vercel = {"command": "npx", "args": ["vercel-mcp"]}' "$SETTINGS" > "$SETTINGS.tmp" && mv "$SETTINGS.tmp" "$SETTINGS"
+    [ "$PKM_PREF" == "obsidian" ] && jq '.mcpServers.obsidian = {"command": "npx", "args": ["obsidian-mcp"]}' "$SETTINGS" > "$SETTINGS.tmp" && mv "$SETTINGS.tmp" "$SETTINGS"
+fi
+
+# 5. Codebase Detection and Dependency Setup
 if [ -f ".gemini/commands/detect-project.sh" ]; then
     chmod +x .gemini/commands/detect-project.sh
     sh .gemini/commands/detect-project.sh
 fi
 
-# 5. Clean up
+echo "📦 Setting up dependencies..."
+if [ -f ".gemini/commands/setup-deps.sh" ]; then
+    chmod +x .gemini/commands/setup-deps.sh
+    sh .gemini/commands/setup-deps.sh
+fi
+
+# 5. Memory Initialization
+echo "🧠 Initializing memory database..."
+if [ -f ".gemini/hooks/sync-memory.sh" ]; then
+    # Create an empty sqlite file if it doesn't exist
+    if [ ! -f ".gemini/memory.sqlite" ]; then
+        sqlite3 .gemini/memory.sqlite "VACUUM;"
+        echo "  ✅ Created .gemini/memory.sqlite"
+    fi
+    # Run sync to establish WAL state
+    sh .gemini/hooks/sync-memory.sh
+    echo "  ✅ Memory graph initialized."
+fi
+
+# 6. Clean up
 rm -rf "$TMP_DIR"
 echo "🔧 Setting hook permissions..."
 chmod +x .gemini/hooks/*.sh

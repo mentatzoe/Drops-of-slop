@@ -4,5 +4,7 @@
   "deploy_preference": "vercel",
   "browser_preference": "standalone-browser",
   "pkm_options": ["obsidian", "confluence", "notion"],
-  "memory_options": ["sqlite-local", "engram"]
+  "memory_options": [
+    "sqlite-local"
+  ]
 }

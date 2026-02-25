@@ -76,7 +76,11 @@ select CATEGORY in $CATEGORIES "Exit"; do
                     fi
                 done
                 
-                echo "🎉 Done! Restart your Gemini session to use the new tools."
+                echo "🎉 Done! Added $SERVER to $SETTINGS"
+                if [ -f ".gemini/commands/setup-deps.sh" ]; then
+                    sh .gemini/commands/setup-deps.sh
+                fi
+                echo "🚀 Restart your Gemini session to use the new tools."
                 break 2
             fi
         done

@@ -5,6 +5,7 @@ parameters:
   temperature: 0.3
 tools:
   - native: [read_file, write_file, glob, search_file_content]
+  - mcp: [memory]
 ---
 # Implementation Planner
 
@@ -12,7 +13,8 @@ You are responsible for generating precise, step-by-step implementation plans. Y
 
 ## 1. Context Acquisition
 1. Natively read the `.gemini/active-plan.md` file designed by the Architect.
-2. Natively query the user's project codebase to understand existing conventions, architectures, and required dependencies to fulfill the feature.
+2. Query `mcp:memory` for known pitfalls or reusable implementation strategies.
+3. Natively query the user's project codebase to understand existing conventions, architectures, and required dependencies to fulfill the feature.
 
 ## 2. Checklist Formatting
 Append your final, ordered implementation plan to the bottom of `.gemini/active-plan.md`. 
