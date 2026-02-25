@@ -168,6 +168,111 @@ print('OK')
   assert_output "OK"
 }
 
+@test "stop-learning-capture: blocks on preference pattern (prefer)" {
+  local json
+  json=$(echo '{"stop_hook_active": false, "last_assistant_message": "The user seems to prefer bun over npm for package management"}' | "$TEMPLATE_DIR/base/hooks/stop-learning-capture.sh")
+
+  run python3 -c "
+import json
+data = json.loads('''${json}''')
+assert data['decision'] == 'block'
+assert 'memory-preferences.md' in data['reason']
+print('OK')
+"
+  assert_success
+  assert_output "OK"
+}
+
+@test "stop-learning-capture: blocks on preference pattern (always use)" {
+  local json
+  json=$(echo '{"stop_hook_active": false, "last_assistant_message": "They always use TypeScript for new projects"}' | "$TEMPLATE_DIR/base/hooks/stop-learning-capture.sh")
+
+  run python3 -c "
+import json
+data = json.loads('''${json}''')
+assert data['decision'] == 'block'
+assert 'memory-preferences.md' in data['reason']
+print('OK')
+"
+  assert_success
+  assert_output "OK"
+}
+
+@test "stop-learning-capture: blocks on preference pattern (switched to)" {
+  local json
+  json=$(echo '{"stop_hook_active": false, "last_assistant_message": "The team switched to vitest from jest"}' | "$TEMPLATE_DIR/base/hooks/stop-learning-capture.sh")
+
+  run python3 -c "
+import json
+data = json.loads('''${json}''')
+assert data['decision'] == 'block'
+print('OK')
+"
+  assert_success
+  assert_output "OK"
+}
+
+@test "stop-learning-capture: blocks on decision pattern (decided)" {
+  local json
+  json=$(echo '{"stop_hook_active": false, "last_assistant_message": "We decided to use Redis for the caching layer"}' | "$TEMPLATE_DIR/base/hooks/stop-learning-capture.sh")
+
+  run python3 -c "
+import json
+data = json.loads('''${json}''')
+assert data['decision'] == 'block'
+assert 'memory-decisions.md' in data['reason']
+print('OK')
+"
+  assert_success
+  assert_output "OK"
+}
+
+@test "stop-learning-capture: blocks on decision pattern (settled on)" {
+  local json
+  json=$(echo '{"stop_hook_active": false, "last_assistant_message": "We settled on using PostgreSQL for the database layer"}' | "$TEMPLATE_DIR/base/hooks/stop-learning-capture.sh")
+
+  run python3 -c "
+import json
+data = json.loads('''${json}''')
+assert data['decision'] == 'block'
+assert 'memory-decisions.md' in data['reason']
+print('OK')
+"
+  assert_success
+  assert_output "OK"
+}
+
+@test "stop-learning-capture: blocks on decision pattern (go with)" {
+  local json
+  json=$(echo '{"stop_hook_active": false, "last_assistant_message": "Lets go with approach B for the refactor"}' | "$TEMPLATE_DIR/base/hooks/stop-learning-capture.sh")
+
+  run python3 -c "
+import json
+data = json.loads('''${json}''')
+assert data['decision'] == 'block'
+print('OK')
+"
+  assert_success
+  assert_output "OK"
+}
+
+@test "stop-learning-capture: strong patterns take priority over preference patterns" {
+  # "fixed" is a strong pattern; even if preference patterns also match, strong should win
+  local json
+  json=$(echo '{"stop_hook_active": false, "last_assistant_message": "I fixed the config. The user seems to prefer YAML."}' | "$TEMPLATE_DIR/base/hooks/stop-learning-capture.sh")
+
+  run python3 -c "
+import json
+data = json.loads('''${json}''')
+assert data['decision'] == 'block'
+# Strong pattern reason mentions discoveries/fixes, not preferences
+assert 'fixes or discoveries' in data['reason']
+print('OK')
+"
+  assert_success
+  assert_output "OK"
+}
+
 @test "stop-learning-capture: allows stop when no patterns match" {
   run bash -c 'echo "{\"stop_hook_active\": false, \"last_assistant_message\": \"Here is the summary you requested.\"}" | "$1"' -- "$TEMPLATE_DIR/base/hooks/stop-learning-capture.sh"
   assert_success

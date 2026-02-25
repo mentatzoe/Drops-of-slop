@@ -13,6 +13,11 @@ description: Past decisions with dates for consistency
 
 <!-- Entries below, newest first -->
 
+## 2026-02-24: Assemble test secrets at runtime to avoid tripping pre-commit hook
+**Decision:** Test files that exercise secret detection must assemble secret-like strings at runtime via helper functions (e.g. `_make_aws_key`), not embed them as literals.
+**Rationale:** The pre-commit-safety hook scans all staged files including test files. Embedding literal patterns like `AKIA...` or `ghp_...` in test source would cause the hook to block its own test file from being committed.
+**Alternatives considered:** Could have excluded test files from hook scanning, but that creates a security gap — real secrets in test files should still be caught.
+
 ## 2026-02-24: Use file --mime for binary detection in hooks (not file | grep text)
 **Decision:** Use `file --mime "$file" | grep -q "charset=binary"` to detect binary files, instead of `file "$file" | grep -q "text"`.
 **Rationale:** `file` identifies PEM keys and other structured text files by format name (e.g. "PEM RSA private key") rather than "text". The `--mime` approach correctly identifies these as non-binary so secret patterns get scanned.
