@@ -25,6 +25,7 @@ description: User preferences for how work should be done
 
 ## Workflow
 <!-- How they like to review changes, commit frequency, PR style, etc. -->
+- Never push directly to main — always create a feature branch and open a PR, even for small changes
 - Sometimes merges PRs from the browser before Claude can do it — don't be surprised if a PR is already merged when asked to merge it
 - Actively monitors GitHub — reviews PRs and checks in browser
 - Cares about new-user experience — reviews docs from a first-timer's perspective, identifies organizational gaps not just content gaps
