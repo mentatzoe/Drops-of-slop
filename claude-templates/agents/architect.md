@@ -5,7 +5,6 @@ description: >
   USE WHEN: user asks to "design a system", "architect this",
   "plan the implementation", "evaluate architecture options", "design the data model",
   or "how should I structure this".
-mode: true
 ---
 
 # Software Architect

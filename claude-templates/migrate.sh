@@ -24,7 +24,6 @@ NC='\033[0m'
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BASE_DIR="$SCRIPT_DIR/base"
 OVERLAYS_DIR="$SCRIPT_DIR/overlays"
-PERSONAS_DIR="$SCRIPT_DIR/personas"
 AGENTS_DIR="$SCRIPT_DIR/agents"
 COMPOSITIONS_DIR="$SCRIPT_DIR/compositions"
 SCRIPTS_DIR="$SCRIPT_DIR/scripts"
@@ -585,18 +584,7 @@ if [ -d "$TARGET/.claude/skills" ]; then
     done
 fi
 
-# --- Step 6: Symlink persona skills + overlay skills ---
-
-info "Linking persona skills..."
-if [ -d "$PERSONAS_DIR" ]; then
-    for persona_dir in "$PERSONAS_DIR"/*/; do
-        [ -d "$persona_dir" ] || continue
-        persona_name=$(basename "$persona_dir")
-        do_ln "$persona_dir" "$TARGET/.claude/skills/$persona_name"
-        CREATED_LINKS+=(".claude/skills/$persona_name")
-        info "  Linked: skills/$persona_name"
-    done
-fi
+# --- Step 6: Symlink overlay skills ---
 
 info "Linking overlay skills..."
 for overlay in "${OVERLAYS[@]}"; do

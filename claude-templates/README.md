@@ -45,9 +45,9 @@ my-project/
 │   │   ├── base--memory-sessions.md
 │   │   ├── webdev--frontend.md        ← symlink (overlay rules)
 │   │   └── webdev--api-design.md      ← symlink
-│   ├── skills/                        ← symlinks (personas + overlay skills)
+│   ├── skills/                        ← symlinks (overlay skills)
 │   ├── commands/                      ← symlinks (overlay commands)
-│   ├── agents/                        ← symlinks (agent wrappers)
+│   ├── agents/                        ← symlinks (auto-delegated agents)
 │   ├── hooks/
 │   │   ├── pre-commit-safety.sh       ← copy (editable)
 │   │   └── stop-learning-capture.sh   ← copy (editable)
@@ -113,31 +113,22 @@ Each overlay adds domain-specific rules, skills, commands, and MCP server config
 
 To create your own composition, see [Create a Custom Composition](GUIDE.md#create-a-custom-composition) in the Usage Guide.
 
-### Personas (always included)
+### Agents (always included)
 
-Personas are switchable behavior modes invoked as skills (e.g., `/architect`, `/strict-reviewer`). They change how Claude approaches a task — tone, methodology, what it focuses on — but don't restrict tool access. Every persona is available in every activated project regardless of which overlays you chose.
+Agents are experts that Claude auto-delegates to based on the task. They run in isolated contexts with optional tool restrictions and model overrides. Each agent's `description` field contains trigger phrases so Claude knows when to delegate. All agents are available in every activated project regardless of which overlays you chose.
 
-| Persona | Description |
-|---------|-------------|
-| `strict-reviewer` | Meticulous read-only code reviewer |
-| `pair-programmer` | Collaborative step-by-step coding partner |
-| `research-analyst` | Systematic researcher with structured findings |
-| `creative-writer` | Fiction and prose writing partner |
-| `architect` | System design and trade-off analysis |
-
-### Agents (delegated execution)
-
-Agents are delegated execution contexts that wrap a persona with specific tool restrictions. Invoke them with `@agent <name>` (e.g., `@strict-reviewer`). Unlike personas, agents run in isolation — they can't modify files they shouldn't touch.
-
-| Agent | Persona | Model | Restrictions |
-|-------|---------|-------|-------------|
-| `strict-reviewer` | strict-reviewer | default | Read-only (no Write/Edit) |
-| `research-analyst` | research-analyst | opus | Full research tools |
-| `worldbuilder` | worldbuilder | opus | Full write access |
+| Agent | Description | Model | Restrictions |
+|-------|-------------|-------|--------------|
+| `strict-reviewer` | Meticulous code reviewer | default | Read-only (no Write/Edit/Bash) |
+| `pair-programmer` | Collaborative step-by-step coding partner | default | Full access |
+| `research-analyst` | Systematic researcher with structured findings | opus | Full access |
+| `creative-writer` | Fiction and prose writing partner | default | Full access |
+| `architect` | System design and trade-off analysis | default | Full access |
+| `worldbuilder` | Lore consistency and narrative design | opus | Full access |
 
 ## How Activation Works
 
-`activate.sh` validates overlays and checks for conflicts → symlinks rules, skills, commands, and agents while merging MCP and settings configs → records state for clean deactivation. Memory files and hooks are **copied** (not symlinked) so each project can customize them independently. See [Set Up a New Project](GUIDE.md#set-up-a-new-project) in the Usage Guide for the full walkthrough.
+`activate.sh` validates overlays and checks for conflicts → symlinks rules, skills, commands, and agents while merging MCP and settings configs → records state for clean deactivation. Memory files and hooks are **copied** (not symlinked) so each project can customize them independently. Agents are symlinked from the top-level `agents/` directory and are available in all projects. See [Set Up a New Project](GUIDE.md#set-up-a-new-project) in the Usage Guide for the full walkthrough.
 
 ### Memory System
 

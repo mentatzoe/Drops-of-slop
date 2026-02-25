@@ -20,7 +20,6 @@ NC='\033[0m'
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BASE_DIR="$SCRIPT_DIR/base"
 OVERLAYS_DIR="$SCRIPT_DIR/overlays"
-PERSONAS_DIR="$SCRIPT_DIR/personas"
 AGENTS_DIR="$SCRIPT_DIR/agents"
 SCRIPTS_DIR="$SCRIPT_DIR/scripts"
 TEMPLATE_VERSION=$(cat "$SCRIPT_DIR/VERSION" 2>/dev/null || echo "unknown")
@@ -292,21 +291,6 @@ for overlay in "${OVERLAYS[@]}"; do
         CREATED_LINKS+=(".claude/rules/$LINK_NAME")
     done
 done
-
-# Persona skills
-info "Re-linking persona skills..."
-if [ -d "$PERSONAS_DIR" ]; then
-    for persona_dir in "$PERSONAS_DIR"/*/; do
-        [ -d "$persona_dir" ] || continue
-        persona_name=$(basename "$persona_dir")
-        if [ "$DRY_RUN" -eq 1 ]; then
-            dry "symlink skills/$persona_name"
-        else
-            ln -sf "$persona_dir" "$TARGET/.claude/skills/$persona_name"
-        fi
-        CREATED_LINKS+=(".claude/skills/$persona_name")
-    done
-fi
 
 # Overlay skills
 info "Re-linking overlay skills..."

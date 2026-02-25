@@ -69,7 +69,6 @@ _run_activate_with_test_overlays() {
   # Copy base and scripts from real template
   cp -r "$TEMPLATE_DIR/base" "$tmp_template/base"
   cp -r "$TEMPLATE_DIR/scripts" "$tmp_template/scripts"
-  [ -d "$TEMPLATE_DIR/personas" ] && cp -r "$TEMPLATE_DIR/personas" "$tmp_template/personas"
   [ -d "$TEMPLATE_DIR/agents" ] && cp -r "$TEMPLATE_DIR/agents" "$tmp_template/agents"
   [ -d "$TEMPLATE_DIR/compositions" ] && cp -r "$TEMPLATE_DIR/compositions" "$tmp_template/compositions"
   [ -f "$TEMPLATE_DIR/manifest.json" ] && cp "$TEMPLATE_DIR/manifest.json" "$tmp_template/manifest.json"

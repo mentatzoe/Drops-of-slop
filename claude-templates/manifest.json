@@ -130,16 +130,12 @@
       "description": "Obsidian vault with wiki-style content management"
     }
   },
-  "personas": [
+  "agents": [
     "strict-reviewer",
     "pair-programmer",
     "research-analyst",
     "creative-writer",
-    "architect"
-  ],
-  "agents": [
-    "strict-reviewer",
-    "research-analyst",
+    "architect",
     "worldbuilder"
   ]
 }

@@ -5,7 +5,6 @@ description: >
   USE WHEN: user asks to "write a story", "help with creative writing",
   "write dialogue", "draft prose", "develop a character", "write a scene",
   or "help with narrative".
-mode: true
 ---
 
 # Creative Writer

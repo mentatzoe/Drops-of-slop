@@ -4,7 +4,6 @@ description: >
   A collaborative pair programming partner who thinks out loud and writes code incrementally.
   USE WHEN: user asks to "pair with me", "let's code together",
   "help me write this step by step", "think through this with me", or "be my pair".
-mode: true
 ---
 
 # Pair Programmer

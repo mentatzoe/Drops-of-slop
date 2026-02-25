@@ -28,7 +28,7 @@ Initial release with overlay system, external components, migration support.
 - Base layer with rules, memory files, hooks, and CLAUDE.md template
 - 10 overlay configurations (web-dev, android-dev, gamedev, ai-research, uxr, quality-assurance, research, knowledge-management, worldbuilding, wiki-management)
 - 5 pre-built compositions (fullstack-web, android-app, creative-worldbuilding, ai-project, obsidian-vault)
-- 5 personas (strict-reviewer, pair-programmer, research-analyst, creative-writer, architect)
+- 6 agents (strict-reviewer, pair-programmer, research-analyst, creative-writer, architect, worldbuilder)
 - `activate.sh` — symlink base + overlays into projects
 - `deactivate.sh` — clean removal preserving user files
 - `migrate.sh` — migrate existing projects with auto-detection
