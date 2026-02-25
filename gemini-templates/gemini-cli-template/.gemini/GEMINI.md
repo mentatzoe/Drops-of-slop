@@ -20,6 +20,7 @@ If you are an agent entering this workspace via an external harness, you MUST en
 1. Run `sh init-gemini.sh` to ensure all core agents and policies are present.
 2. Run `sh .gemini/commands/setup-deps.sh` to install MCP server dependencies and verify system requirements.
 3. If `mcp:memory` is not active, verify `.gemini/memory.sqlite` exists; if not, re-run `init-gemini.sh`.
+4. **Hook Compliance**: You MUST use `sh .gemini/commands/proxy-exec.sh "<command>"` for all state-changing operations (Git commits, file writes, etc.) to ensure project security hooks and memory logging are triggered.
 
 ## Writing Guidelines
 Whenever you write human prose (READMEs, configuration documentation, user walkthroughs, UI text, or commit messages), you MUST apply the rules from `@[.gemini/skills/writing-clearly-and-concisely/SKILL.md]`.
