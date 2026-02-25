@@ -98,6 +98,41 @@ Five compositions are available:
 | `obsidian-vault` | knowledge-management, wiki-management | Obsidian vault with wiki management |
 
 
+## Create a Custom Composition
+
+A composition is a JSON file in `compositions/` that bundles overlays under a name. Create one when you have a recurring overlay combination.
+
+### 1. Write the JSON file
+
+Create `compositions/my-combo.json` with three fields:
+
+```json
+{
+  "name": "my-combo",
+  "description": "Short description of what this combination is for",
+  "overlays": ["web-dev", "quality-assurance"]
+}
+```
+
+- `name` — must match the filename (without `.json`)
+- `description` — displayed in `--help` output
+- `overlays` — array of overlay names to activate together
+
+### 2. Test it
+
+```bash
+./activate.sh ~/my-project --composition my-combo
+```
+
+The script resolves dependencies and checks for conflicts the same way it does with individual overlays. If two overlays in your composition conflict, activation fails with an error.
+
+### 3. Validate overlays don't conflict
+
+Check the `conflicts` field in each overlay's `overlay.json`. For example, `web-dev` and `android-dev` conflict — a composition including both would always fail.
+
+> **Note:** Compositions don't need to be registered in `manifest.json`. `activate.sh` reads directly from the `compositions/` directory.
+
+
 ## Add External Components
 
 External components come from the [aitmpl.com catalog](https://github.com/davila7/claude-code-templates). Three ways to install them:
@@ -255,6 +290,55 @@ Remove all template files from a project:
 For migrated projects, deactivation also restores custom-prefixed rules to their original names and shows the migration backup location for full restoration.
 
 
+## Refresh After Updates
+
+After pulling template updates (re-running the installer) or modifying overlay definitions, run `refresh.sh` to synchronize your project:
+
+```bash
+./refresh.sh ~/my-project
+```
+
+### What it does
+
+1. Re-creates all symlinks (rules, skills, commands, agents) from the recorded overlay set
+2. Re-merges MCP and settings configs
+3. Cleans stale or broken symlinks from removed/renamed overlays
+4. Updates the activation state file with the new template version
+
+### What it preserves
+
+Refresh never touches user-editable content:
+
+- Memory files (`base--memory-*.md`)
+- Custom rules (`custom--*` prefix)
+- External components (`ext--*` prefix)
+- `CLAUDE.md`
+- Hook modifications (warns if a hook differs from the template)
+
+### Refresh all projects
+
+If you have multiple activated projects, refresh them all at once:
+
+```bash
+./refresh.sh --all
+```
+
+This reads from the `.known-projects` registry (populated automatically during activation).
+
+### Dry run
+
+Preview what refresh would change without modifying anything:
+
+```bash
+./refresh.sh --dry-run ~/my-project
+./refresh.sh --dry-run --all
+```
+
+### Refresh vs. re-activate
+
+`refresh.sh` is lighter than re-running `activate.sh` — it skips conflict checks and dependency resolution, and re-links from the previously recorded overlay set. Use it after template updates. Use `activate.sh` when you want to change which overlays are active.
+
+
 ## Create a Custom Overlay
 
 ### 1. Create the directory structure
@@ -387,3 +471,79 @@ Set these before running `activate.sh` or `migrate.sh`. The scripts substitute `
 | `MEDIAWIKI_BOT_PASSWORD` | worldbuilding, wiki-management | Wiki bot credentials |
 | `ANDROID_HOME` | android-dev | Android SDK path |
 | `GITHUB_TOKEN` | fetch-external.sh | GitHub API rate limits (optional) |
+
+
+## Troubleshooting
+
+### Overlay conflict error
+
+**Cause:** Two requested overlays declare each other in their `conflicts` field.
+
+**Fix:** Choose one or the other. Check each overlay's `overlay.json` to see what it conflicts with:
+
+```bash
+cat overlays/<overlay-name>/overlay.json | python3 -c "import json,sys; print(json.load(sys.stdin).get('conflicts', []))"
+```
+
+### Missing environment variable warning during activation
+
+**Cause:** An MCP config references `${VAR}` but the variable isn't set in your shell.
+
+**Fix:** Export the variable before running `activate.sh`:
+
+```bash
+export BRAVE_API_KEY=your-key-here
+./activate.sh ~/my-project research
+```
+
+See the [Environment Variables](#environment-variables) table for the full list.
+
+### Broken symlinks after template update
+
+**Cause:** Template files were moved or renamed in a newer version.
+
+**Fix:** Run `refresh.sh` to re-create symlinks from the updated templates:
+
+```bash
+./refresh.sh ~/my-project
+```
+
+### Activation state file missing
+
+**Cause:** `.claude/.activated-overlays.json` was deleted manually.
+
+**Fix:** Re-run `activate.sh` with the same overlays you originally used. The script regenerates the state file.
+
+### Permission denied on hooks
+
+**Cause:** Hook scripts lost their executable bit.
+
+**Fix:**
+
+```bash
+chmod +x ~/my-project/.claude/hooks/*.sh
+```
+
+### MCP server not loading
+
+**Cause:** The MCP config wasn't generated, or required environment variables are missing.
+
+**Fix:**
+
+1. Verify `.mcp.json` exists in your project root — if not, re-run `activate.sh`
+2. Check that required environment variables are set (e.g., `echo $BRAVE_API_KEY`)
+3. Run `claude mcp list` to confirm Claude Code sees the configured servers
+
+### Memory files not updating between sessions
+
+**Cause:** The stop hook isn't registered or `jq` isn't installed.
+
+**Fix:**
+
+1. Check that `stop-learning-capture.sh` is listed under `hooks` in `.claude/settings.json`
+2. Verify `jq` is installed: `jq --version` (install with `apt install jq` or `brew install jq`)
+3. Re-run `activate.sh` or manually copy the hook from the template:
+   ```bash
+   cp ~/.claude-templates/base/hooks/stop-learning-capture.sh ~/my-project/.claude/hooks/
+   chmod +x ~/my-project/.claude/hooks/stop-learning-capture.sh
+   ```

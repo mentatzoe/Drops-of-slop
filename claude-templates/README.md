@@ -69,6 +69,8 @@ Each overlay adds domain-specific rules, skills, commands, and MCP server config
 | `ai-project` | ai-research + research |
 | `obsidian-vault` | knowledge-management + wiki-management |
 
+To create your own composition, see [Create a Custom Composition](GUIDE.md#create-a-custom-composition) in the Usage Guide.
+
 ### Personas (always included)
 
 Persona skills are loaded into every activated project and appear as switchable modes:
@@ -251,3 +253,4 @@ Running `migrate.sh` on an already-migrated project is safe — it deactivates t
 | `scripts/validate-overlay.sh` | Validates overlay structure and schema |
 | `scripts/detect-project.sh` | Analyzes a project and recommends overlays (JSON output) |
 | `scripts/merge-claude-md.py` | Merges existing CLAUDE.md with the base template |
+| `refresh.sh` | Re-links symlinks and re-merges configs after a template update |
