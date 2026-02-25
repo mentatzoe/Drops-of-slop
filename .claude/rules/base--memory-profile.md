@@ -21,4 +21,4 @@ description: Persistent facts about the user and project
 <!-- What this project does, key stakeholders, deployment targets, etc. -->
 - `claude-templates` — a Claude Code overlay/template system for managing `.claude/` configuration
 - Overlays compose rules, hooks, settings, and MCP configs into a project's `.claude/` directory
-- Structure: 11 overlays, 5 compositions, 5 personas, 3 agents (as of v1.1.0)
+- Structure: 10 overlays, 5 compositions, 6 agents (personas merged into agents)

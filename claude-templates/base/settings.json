@@ -26,6 +26,17 @@
     ]
   },
   "hooks": {
+    "UserPromptSubmit": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/prompt-memory-nudge.sh"
+          }
+        ]
+      }
+    ],
     "Stop": [
       {
         "matcher": "",

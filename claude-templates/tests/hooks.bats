@@ -279,6 +279,44 @@ print('OK')
   assert_output ""
 }
 
+# --- prompt-memory-nudge.sh ---
+
+@test "prompt-memory-nudge: outputs reminder on preference signal" {
+  local output
+  output=$(echo '{"prompt": "I prefer using bun over npm"}' | "$TEMPLATE_DIR/base/hooks/prompt-memory-nudge.sh")
+  [[ "$output" == *"memory-preferences.md"* ]]
+}
+
+@test "prompt-memory-nudge: outputs reminder on decision signal" {
+  local output
+  output=$(echo '{"prompt": "let'"'"'s go with Redis for caching"}' | "$TEMPLATE_DIR/base/hooks/prompt-memory-nudge.sh")
+  [[ "$output" == *"memory-decisions.md"* ]]
+}
+
+@test "prompt-memory-nudge: outputs reminder on profile signal" {
+  local output
+  output=$(echo '{"prompt": "I work on a fintech platform"}' | "$TEMPLATE_DIR/base/hooks/prompt-memory-nudge.sh")
+  [[ "$output" == *"memory-profile.md"* ]]
+}
+
+@test "prompt-memory-nudge: silent on ordinary prompts" {
+  run bash -c 'echo "{\"prompt\": \"fix the login bug\"}" | "$1"' -- "$TEMPLATE_DIR/base/hooks/prompt-memory-nudge.sh"
+  assert_success
+  assert_output ""
+}
+
+@test "prompt-memory-nudge: silent on empty prompt" {
+  run bash -c 'echo "{\"prompt\": \"\"}" | "$1"' -- "$TEMPLATE_DIR/base/hooks/prompt-memory-nudge.sh"
+  assert_success
+  assert_output ""
+}
+
+@test "prompt-memory-nudge: warns not to record own suggestions as preferences" {
+  local output
+  output=$(echo '{"prompt": "I prefer tabs over spaces"}' | "$TEMPLATE_DIR/base/hooks/prompt-memory-nudge.sh")
+  [[ "$output" == *"do not record your own suggestions"* ]]
+}
+
 # --- JSON protocol compliance ---
 
 @test "pre-commit-safety: all outputs are valid JSON" {

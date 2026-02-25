@@ -14,6 +14,21 @@ description: Rolling summary of recent work sessions
 
 <!-- Entries below, newest first -->
 
+## 2026-02-25: Real-time memory capture hook + personas→agents merge
+- Merged 5 persona SKILL.md files into agent .md files: strict-reviewer (merged with existing), research-analyst (merged with existing), pair-programmer (new), creative-writer (new), architect (new)
+- Deleted entire `personas/` directory
+- Removed PERSONAS_DIR and persona symlinking blocks from activate.sh, refresh.sh, migrate.sh
+- Updated manifest.json: removed `personas` array, expanded `agents` to list all 6
+- Updated tests/conflicts-deps.bats: removed persona directory copy
+- Updated README.md: replaced Personas + Agents sections with single Agents section listing all 6
+- Created `base/rules/available-agents.md` for agent discoverability
+- All 50 bats tests pass, test activation verified 6 agents and 0 persona symlinks
+- Key files: `agents/*.md`, `activate.sh`, `refresh.sh`, `migrate.sh`, `manifest.json`, `README.md`
+- Added `prompt-memory-nudge.sh` UserPromptSubmit hook for real-time preference/decision/profile detection
+- Registered hook in `base/settings.json`, added 6 new tests (56 total, all pass)
+- Added attribution guardrail to memory-preferences.md: "do not record Claude's suggestions as user preferences"
+- Key files (hook): `base/hooks/prompt-memory-nudge.sh`, `base/settings.json`, `tests/hooks.bats`
+
 ## 2026-02-25: Documentation refresh — new-user experience fixes
 - README.md: Added "Why?" value proposition, "What You Get" filesystem tree with git guidance, persona vs agent explainers, slimmed duplicated sections (activation steps, env vars, custom overlays, migration) to brief pointers → GUIDE.md
 - GUIDE.md: Added "Which Script Do I Run?" decision table, moved preservation messaging to top of migration section, added external components explainer, added partial-activation-failure troubleshooting entry, removed redundant ext-- prefix mention

@@ -13,6 +13,16 @@ description: Past decisions with dates for consistency
 
 <!-- Entries below, newest first -->
 
+## 2026-02-25: Add UserPromptSubmit hook for real-time memory capture
+**Decision:** Add a non-blocking UserPromptSubmit hook (`prompt-memory-nudge.sh`) that scans each user message for preference/decision/profile signals and injects a context reminder before Claude responds.
+**Rationale:** The stop hook fires after context compression may have discarded preference signals from earlier in the conversation (especially from plan mode). Real-time detection ensures nothing is lost.
+**Alternatives considered:** Strengthening CLAUDE.md instructions only (low reliability), PostToolUse periodic checkpoint (heavier, noisier).
+
+## 2026-02-25: Merge personas into agents — single concept for experts
+**Decision:** Eliminate `personas/` directory entirely; merge all 5 persona SKILL.md files into agent .md files in `agents/`. Users interact with a single "agents" concept instead of two overlapping concepts.
+**Rationale:** Personas and agents served the same purpose — "an expert with domain knowledge" — but split across two directories with different invocation patterns (skills vs delegated agents). This confused newcomers and created redundant plumbing. Agents auto-delegate via their `description` field, removing the need for users to remember `/skill-name` invocations.
+**Alternatives considered:** Could have kept both and documented the distinction more clearly, but the overlap was fundamental — merging eliminates the conceptual burden entirely.
+
 ## 2026-02-25: README as overview, GUIDE as walkthrough — deduplicate docs
 **Decision:** Slim README.md to be a quick-reference overview with short summaries and links to GUIDE.md for detailed walkthroughs. Remove duplicated content (env vars table, custom overlays, migration steps) from README.
 **Rationale:** First-time users were overwhelmed by README's length and confused by seeing the same content in two places. README should answer "what is this and should I use it?" while GUIDE answers "how do I use it?"
