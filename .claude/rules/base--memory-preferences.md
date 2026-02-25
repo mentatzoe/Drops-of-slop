@@ -18,6 +18,8 @@ description: User preferences for how work should be done
 <!-- How they like to review changes, commit frequency, PR style, etc. -->
 - Sometimes merges PRs from the browser before Claude can do it — don't be surprised if a PR is already merged when asked to merge it
 - Actively monitors GitHub — reviews PRs and checks in browser
+- Cares about new-user experience — reviews docs from a first-timer's perspective, identifies organizational gaps not just content gaps
+- Prefers detailed implementation plans before execution — writes multi-point plans with exact line numbers and specific change descriptions
 
 ## Tools & Environment
 <!-- Preferred tools, package managers, test runners, linters, etc. -->

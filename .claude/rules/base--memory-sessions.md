@@ -14,6 +14,14 @@ description: Rolling summary of recent work sessions
 
 <!-- Entries below, newest first -->
 
+## 2026-02-25: Documentation refresh — new-user experience fixes
+- README.md: Added "Why?" value proposition, "What You Get" filesystem tree with git guidance, persona vs agent explainers, slimmed duplicated sections (activation steps, env vars, custom overlays, migration) to brief pointers → GUIDE.md
+- GUIDE.md: Added "Which Script Do I Run?" decision table, moved preservation messaging to top of migration section, added external components explainer, added partial-activation-failure troubleshooting entry, removed redundant ext-- prefix mention
+- All 5 README→GUIDE cross-references verified, all 2 GUIDE internal links verified
+- Key files: `claude-templates/README.md`, `claude-templates/GUIDE.md`
+- All 50 bats tests pass (docs-only change)
+- Decision logged: README as overview, GUIDE as walkthrough deduplication strategy
+
 ## 2026-02-25: Documentation gaps — compositions, refresh, troubleshooting
 - Added 3 new sections to `claude-templates/GUIDE.md`:
   1. "Create a Custom Composition" — JSON schema walkthrough, testing, conflict validation
