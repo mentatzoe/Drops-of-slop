@@ -14,6 +14,15 @@ description: Rolling summary of recent work sessions
 
 <!-- Entries below, newest first -->
 
+## 2026-02-25: Documentation gaps — compositions, refresh, troubleshooting
+- Added 3 new sections to `claude-templates/GUIDE.md`:
+  1. "Create a Custom Composition" — JSON schema walkthrough, testing, conflict validation
+  2. "Refresh After Updates" — `refresh.sh` usage, what it does/preserves, `--all`, `--dry-run`, refresh vs. re-activate
+  3. "Troubleshooting" — 7 problem/cause/fix entries (conflicts, env vars, broken symlinks, state file, permissions, MCP, memory)
+- Added 2 cross-references to `claude-templates/README.md`: custom composition link after Compositions table, `refresh.sh` in Scripts table
+- Key files: `claude-templates/GUIDE.md`, `claude-templates/README.md`
+- All 50 bats tests pass (docs-only change, no regressions)
+
 ## 2026-02-24: Improve memory capture — expand stop hook and backfill missed data
 - Expanded `stop-learning-capture.sh` with two new pattern categories: PREFERENCE_PATTERNS and DECISION_PATTERNS (each with targeted reason messages pointing to the correct memory file)
 - Backfilled `memory-profile.md` (GitHub handle, environment, project context), `memory-preferences.md` (terse command style, autonomous execution trust, GitHub monitoring), `memory-decisions.md` (runtime test-secret assembly)
